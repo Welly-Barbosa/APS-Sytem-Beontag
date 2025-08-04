@@ -1,0 +1,75 @@
+﻿<Window x:Class="APSSystem.Presentation.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:APSSystem.Presentation.WPF"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        xmlns:viewModels="clr-namespace:APSSystem.Presentation.WPF.ViewModels"
+        xmlns:converters="clr-namespace:APSSystem.Presentation.WPF.Converters"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        d:DataContext="{d:DesignInstance Type=viewModels:DashboardViewModel, IsDesignTimeCreatable=False}"
+        mc:Ignorable="d"
+        Title="APS System - Planning Dashboard" Height="800" Width="1400" WindowStartupLocation="CenterScreen" FontSize="14">    <Window.Resources>
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+        <converters:PositiveToGreenNegativeToRedConverter x:Key="PositiveToGreenNegativeToRedConverter" />
+        <converters:DateOnlyToDateTimeConverter x:Key="DateOnlyConverter" />
+    </Window.Resources>
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Optimization Control Panel" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <Border Grid.Row="1" BorderBrush="Gainsboro" BorderThickness="1" Padding="10" CornerRadius="3">
+            <StackPanel Orientation="Horizontal">
+                <GroupBox Header="1. Scenario Selection" Padding="10" FontWeight="SemiBold" VerticalAlignment="Top">
+                    <StackPanel>
+                        <RadioButton Content="Demand &lt; Capacity (Anticipation)" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Antecipacao}"/>
+                        <RadioButton Content="Demand &gt; Capacity (Backlog)" Margin="0,5,0,0" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Backlog}"/>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Header="2. Horizon Planning" Padding="10" Margin="20,0,0,0" FontWeight="SemiBold">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Margin="0,0,20,0">
+                            <TextBlock Text="Start Date:"/>
+                            <DatePicker SelectedDate="{Binding DataInicio, Mode=TwoWay, Converter={StaticResource DateOnlyConverter}}" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,0" MinWidth="200">
+                            <TextBlock Text="{Binding DuracaoHorizonteDias, StringFormat='Duration: {0} days'}" />
+                            <Slider Minimum="7" Maximum="45" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding DuracaoHorizonteDias, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="End Date (Calculated):"/>
+                            <TextBlock Text="{Binding DataFim, StringFormat=d}" FontWeight="Bold" Foreground="DarkSlateGray"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <Button Content="Analyze Scenario" Command="{Binding AnalisarCenarioCommand}" IsEnabled="{Binding IsIdle}" VerticalAlignment="Center" Padding="20,10" Margin="20,0,0,0" FontSize="16" FontWeight="Bold"/>
+                <Button Content="Start Optimization" Command="{Binding StartOptimizationCommand}" IsEnabled="{Binding IsIdle}" VerticalAlignment="Center" Padding="20,10" Margin="10,0,0,0" FontSize="16"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="0,15,0,0">
+        </Grid>
+        <lvc:CartesianChart Grid.Row="3" Series="{Binding Series}" XAxes="{Binding XAxes}" Margin="0,10,0,10"/>
+        <DataGrid Grid.Row="4" ItemsSource="{Binding OrdensParaExibir}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Order Number" Binding="{Binding NumeroOrdem}" Width="*"/>
+                <DataGridTextColumn Header="Part Number" Binding="{Binding ItemRequisitado}" Width="2*"/>
+                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantidade}" Width="*"/>
+                <DataGridTextColumn Header="Cutting Width" Binding="{Binding LarguraCorte}" Width="*"/>
+                <DataGridTextColumn Header="Due Date" Binding="{Binding DataEntrega, StringFormat=d}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StatusBar Grid.Row="5" Margin="0,10,0,0">
+        </StatusBar>
+    </Grid>
+</Window>
