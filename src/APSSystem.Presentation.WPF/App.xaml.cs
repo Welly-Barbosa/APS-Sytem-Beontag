@@ -7,6 +7,7 @@ using APSSystem.Core.ValueObjects;
 using APSSystem.Infrastructure.GamsIntegration;
 using APSSystem.Infrastructure.Persistence.ExcelRepositories;
 using APSSystem.Infrastructure.Persistence.InMemoryRepositories;
+using APSSystem.Infrastructure.Services;
 using APSSystem.Presentation.WPF.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -38,6 +39,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IRecursoRepository, ExcelRecursoRepository>();
         services.AddSingleton<IProdutoRepository, ExcelProdutoRepository>();
         services.AddSingleton<ICalendarioRepository, InMemoryCalendarioRepository>();
+        services.AddSingleton<IExcelDataService, ExcelDataService>(); // Adiciona esta linha
 
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
             LarguraBobinaMae: 78.74m, FatorDePerda: 1.05m,

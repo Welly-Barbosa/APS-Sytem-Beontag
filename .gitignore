@@ -18,5 +18,11 @@ x86/
 # Visual Studio cache
 .vs/
 
+# Ignora cookies do Chrome que causam erro de permissão
+AppData/Local/Google/Chrome/User Data/Default/Network/Cookies
+
+# Ignora dados do Chrome (previne erro de permissão)
+AppData/
+
 # Outros
 *.DS_Store

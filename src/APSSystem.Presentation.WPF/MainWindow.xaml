@@ -59,7 +59,7 @@
 
         <Grid Grid.Row="2" Margin="0,15,0,0">
         </Grid>
-        <lvc:CartesianChart Grid.Row="3" Series="{Binding Series}" XAxes="{Binding XAxes}" Margin="0,10,0,10"/>
+        <lvc:CartesianChart Grid.Row="3" Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" Margin="0,10,0,10"/>
         <DataGrid Grid.Row="4" ItemsSource="{Binding OrdensParaExibir}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Order Number" Binding="{Binding NumeroOrdem}" Width="*"/>
