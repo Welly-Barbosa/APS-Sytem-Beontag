@@ -31,25 +31,40 @@ public partial class App : System.Windows.Application
 
     private void ConfigureDependencies(IServiceCollection services)
     {
+        // MediatR para orquestração de casos de uso
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(GerarArquivoGamsCommandHandler).Assembly));
 
+        // --- Repositórios ---
+        // Repositórios que leem de planilhas Excel
         services.AddSingleton<IOrdemClienteRepository, ExcelOrdemClienteRepository>();
         services.AddSingleton<IItemDeInventarioRepository, ExcelItemDeInventarioRepository>();
         services.AddSingleton<IRecursoRepository, ExcelRecursoRepository>();
         services.AddSingleton<IProdutoRepository, ExcelProdutoRepository>();
-        services.AddSingleton<ICalendarioRepository, InMemoryCalendarioRepository>();
-        services.AddSingleton<IExcelDataService, ExcelDataService>(); // Adiciona esta linha
 
+        // Repositórios que usam dados em memória
+        services.AddSingleton<ICalendarioRepository, InMemoryCalendarioRepository>();
+
+        // --- O REGISTRO QUE FALTAVA ---
+        // Adiciona a implementação em memória para o repositório de Necessidade de Produção
+        services.AddSingleton<INecessidadeDeProducaoRepository, InMemoryNecessidadeDeProducaoRepository>();
+
+
+        // --- Serviços ---
+        // Serviços de negócio e de infraestrutura
+        services.AddSingleton<IScenarioService, ScenarioService>();
+        services.AddSingleton<IExcelDataService, ExcelDataService>();
+        services.AddSingleton<IGamsFileWriter, GamsFileWriter>();
+        services.AddTransient<AlocacaoInventarioService>();
+
+        // Parâmetros de Cálculo
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
             LarguraBobinaMae: 78.74m, FatorDePerda: 1.05m,
-            TempoProcessamentoBobina10k: 600, TempoProcessamentoBobina15k: 900,
+            TempoProcessamentoBobina10k: 60, TempoProcessamentoBobina15k: 90,
             TempoSetupPorBobina: 15));
         services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
 
-        services.AddSingleton<IScenarioService, ScenarioService>();
-        services.AddSingleton<IGamsFileWriter, GamsFileWriter>();
-
+        // --- Camada de UI (Views e ViewModels) ---
         services.AddSingleton<MainWindow>();
         services.AddTransient<DashboardViewModel>();
     }

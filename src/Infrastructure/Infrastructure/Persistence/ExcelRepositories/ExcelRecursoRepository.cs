@@ -29,18 +29,27 @@ public class ExcelRecursoRepository : IRecursoRepository
         {
             try
             {
-                // A lógica de mapeamento permanece a mesma
+                // Função auxiliar para converter com segurança, tratando DBNull
+                decimal SafeGetDecimal(string columnName, decimal defaultValue = 0)
+                {
+                    return row[columnName] == DBNull.Value ? defaultValue : Convert.ToDecimal(row[columnName]);
+                }
+
+                int SafeGetInt(string columnName, int defaultValue = 0)
+                {
+                    return row[columnName] == DBNull.Value ? defaultValue : Convert.ToInt32(row[columnName]);
+                }
+
                 var recurso = new Recurso(
                     Id: row["Id"].ToString()!,
                     Descricao: row["Descricao"].ToString()!,
-                    VelocidadePolPorMinuto: Convert.ToDecimal(row["VelocidadePolPorMinuto"]),
-                    Eficiencia: Convert.ToDecimal(row["Eficiencia"]),
-                    TempoDeSetupEmMinutos: Convert.ToDecimal(row["Setup"]),
-                    MaximoCortes: Convert.ToInt32(row["MaximoCortes"]),
-                    CustoPorHora: Convert.ToDecimal(row["CustoPorHora"]),
+                    VelocidadePolPorMinuto: SafeGetDecimal("VelocidadePolPorMinuto"),
+                    Eficiencia: SafeGetDecimal("Eficiencia"),
+                    TempoDeSetupEmMinutos: SafeGetDecimal("Setup"),
+                    MaximoCortes: SafeGetInt("MaximoCortes"),
+                    CustoPorHora: SafeGetDecimal("CustoPorHora"),
                     CalendarioId: row["CalendarioId"].ToString()!
-                );
-                recursos.Add(recurso);
+                ); recursos.Add(recurso);
             }
             catch (Exception ex)
             {

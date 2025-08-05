@@ -2,6 +2,7 @@
 using APSSystem.Core.Entities;
 using APSSystem.Core.Interfaces;
 using APSSystem.Core.ValueObjects;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,19 +30,33 @@ public class ExcelOrdemClienteRepository : IOrdemClienteRepository
         {
             try
             {
+                // Função auxiliar para converter com segurança, tratando DBNull
+                decimal SafeGetDecimal(string columnName, decimal defaultValue = 0)
+                {
+                    return row[columnName] == DBNull.Value ? defaultValue : Convert.ToDecimal(row[columnName]);
+                }
+
+                int SafeGetInt(string columnName, int defaultValue = 0)
+                {
+                    return row[columnName] == DBNull.Value ? defaultValue : Convert.ToInt32(row[columnName]);
+                }
+                DateTime SafeGetDate(string columnName, DateTime defaultValue = default)
+                {
+                    return row[columnName] == DBNull.Value ? defaultValue : Convert.ToDateTime(row[columnName]);
+                }
                 // A lógica de mapeamento permanece a mesma
                 var partNumber = new PartNumber(
                     PN_Generico: row["PN_Generico"].ToString()!,
-                    Largura: Convert.ToDecimal(row["Largura"]),
-                    Comprimento: row["Comprimento"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(row["Comprimento"])
+                    Largura: SafeGetDecimal("Largura"),
+                    Comprimento: SafeGetInt("Comprimento")
                 );
 
                 var ordem = new OrdemCliente(
                     NumeroOrdem: row["NumeroOrdem"].ToString()!,
                     ItemRequisitado: partNumber,
-                    Quantidade: Convert.ToInt32(row["Quantidade"]),
-                    DataEntrega: Convert.ToDateTime(row["DataEntrega"]),
-                    LarguraCorte: Convert.ToDecimal(row["LarguraCorte"])
+                    Quantidade: SafeGetInt("Quantidade"),
+                    DataEntrega: SafeGetDate("DataEntrega"),
+                    LarguraCorte: SafeGetDecimal("LarguraCorte")
                 );
                 ordens.Add(ordem);
             }
