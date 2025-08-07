@@ -1,5 +1,6 @@
 ﻿using APSSystem.Application.Interfaces;
 using APSSystem.Application.UseCases.GerarArquivoGams;
+using APSSystem.Application.UseCases.IniciarOtimizacao;
 using APSSystem.Application.UseCases.ObterDadosDashboard;
 using APSSystem.Core.Entities;
 using APSSystem.Core.Enums;
@@ -169,20 +170,29 @@ public class DashboardViewModel : ViewModelBase
     private async Task ExecutarOtimizacao()
     {
         IsIdle = false;
-        StatusMessage = "Starting optimization... Generating GAMS file.";
+        StatusMessage = "Starting optimization...";
         try
         {
-            _scenarioService.DefinirCenario(CenarioSelecionado);
-            string caminhoDeSaida = Path.Combine(AppContext.BaseDirectory, "GamsInputData.dat");
-            var command = new GerarArquivoGamsCommand(caminhoDeSaida, DataInicio, DataFim);
+            // O ViewModel agora só precisa despachar um único comando de alto nível
+            var command = new IniciarOtimizacaoCommand(CenarioSelecionado, DataInicio, DataFim);
             await _mediator.Send(command);
+
+            // A lógica de simulação e de feedback para o usuário permanece na UI
             StatusMessage = "GAMS input file generated. Simulating optimization run...";
             await Task.Delay(3000);
-            //var resultadosView = new ResultadosOtimizacaoWindow();
-            //resultadosView.Show();
-            StatusMessage = "Optimization complete. Results window would open.";
+
+            var resultadosView = new ResultadosOtimizacaoWindow();
+            resultadosView.Show();
+
+            StatusMessage = "Optimization complete. Results window opened.";
         }
-        catch (Exception ex) { StatusMessage = $"ERROR during optimization: {ex.Message}"; }
-        finally { IsIdle = true; }
+        catch (Exception ex)
+        {
+            StatusMessage = $"ERROR during optimization: {ex.Message}";
+        }
+        finally
+        {
+            IsIdle = true;
+        }
     }
 }
