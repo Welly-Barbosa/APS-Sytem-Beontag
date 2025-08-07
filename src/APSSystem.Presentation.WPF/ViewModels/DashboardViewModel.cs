@@ -170,25 +170,25 @@ public class DashboardViewModel : ViewModelBase
     private async Task ExecutarOtimizacao()
     {
         IsIdle = false;
-        StatusMessage = "Starting optimization...";
+        // MENSAGEM DE ESPERA PARA O USUÁRIO
+        StatusMessage = "Waiting for Optimization...";
         try
         {
-            // O ViewModel agora só precisa despachar um único comando de alto nível
+            // O ViewModel agora só precisa enviar o comando de alto nível.
+            // O Handler na camada de Application fará a orquestração.
             var command = new IniciarOtimizacaoCommand(CenarioSelecionado, DataInicio, DataFim);
             await _mediator.Send(command);
 
-            // A lógica de simulação e de feedback para o usuário permanece na UI
-            StatusMessage = "GAMS input file generated. Simulating optimization run...";
-            await Task.Delay(3000);
+            StatusMessage = "Optimization complete! Results are ready for post-processing.";
 
+            // Abertura da nova tela (ainda simulada)
             var resultadosView = new ResultadosOtimizacaoWindow();
             resultadosView.Show();
-
-            StatusMessage = "Optimization complete. Results window opened.";
         }
         catch (Exception ex)
         {
             StatusMessage = $"ERROR during optimization: {ex.Message}";
+            MessageBox.Show(ex.Message, "Optimization Failed", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally
         {

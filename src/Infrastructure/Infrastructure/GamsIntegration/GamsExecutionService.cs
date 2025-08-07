@@ -1,8 +1,9 @@
 ﻿using APSSystem.Application.Interfaces;
+using Microsoft.Extensions.Configuration; // Adicionar este using
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading; // Adicionar este using para CancellationToken
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace APSSystem.Infrastructure.GamsIntegration;
@@ -10,20 +11,21 @@ namespace APSSystem.Infrastructure.GamsIntegration;
 public class GamsExecutionService : IGamsExecutionService
 {
     private readonly IGamsFileWriter _gamsWriter;
+    private readonly string _gamsExecutablePath;
+    private readonly string _workspaceRootPath;
 
-    // Caminhos que viriam de um arquivo de configuração
-    private const string GamsExecutablePath = @"C:\GAMS\50\gams.exe";
-    private const string WorkspaceRootPath = @"C:\APSSystem_Workspace";
-
-    public GamsExecutionService(IGamsFileWriter gamsWriter)
+    public GamsExecutionService(IGamsFileWriter gamsWriter, IConfiguration configuration)
     {
         _gamsWriter = gamsWriter;
+        // Lê os caminhos do appsettings.json
+        _gamsExecutablePath = configuration.GetValue<string>("GamsSettings:ExecutablePath");
+        _workspaceRootPath = configuration.GetValue<string>("GamsSettings:WorkspaceRootPath");
     }
 
     public async Task<GamsExecutionResult> ExecutarAsync(string gamsModelPath, GamsInputData inputData, TimeSpan timeout)
     {
         string jobFolderName = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}_{Guid.NewGuid().ToString().Substring(0, 8)}";
-        string jobFolderPath = Path.Combine(WorkspaceRootPath, jobFolderName);
+        string jobFolderPath = Path.Combine(_workspaceRootPath, jobFolderName);
 
         try
         {
@@ -37,39 +39,35 @@ public class GamsExecutionService : IGamsExecutionService
             await _gamsWriter.GerarArquivoDeEntradaAsync(inputDataPath, inputData);
 
             using var process = new Process();
-            process.StartInfo.FileName = GamsExecutablePath;
+            process.StartInfo.FileName = _gamsExecutablePath;
             process.StartInfo.Arguments = $"\"{localModelPath}\" INTERRUPT=1";
             process.StartInfo.WorkingDirectory = jobFolderPath;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
             process.StartInfo.CreateNoWindow = true;
 
             process.Start();
-            Console.WriteLine($"GAMS process started with ID: {process.Id}. Working directory: {jobFolderPath}");
 
-            // --- CÓDIGO DE TIMEOUT ATUALIZADO ---
-            try
-            {
-                // 1. Cria um CancellationTokenSource que será cancelado após o timeout
-                using var cts = new CancellationTokenSource(timeout);
+            var processExitedTcs = new TaskCompletionSource<bool>();
+            process.EnableRaisingEvents = true;
+            process.Exited += (sender, args) => processExitedTcs.SetResult(true);
 
-                // 2. Aguarda o processo terminar, passando o token
-                await process.WaitForExitAsync(cts.Token);
-            }
-            catch (TaskCanceledException)
+            var timeoutTask = Task.Delay(timeout);
+            var completedTask = await Task.WhenAny(processExitedTcs.Task, timeoutTask);
+
+            if (completedTask == timeoutTask)
             {
-                // 3. Se a tarefa foi cancelada, significa que o timeout foi atingido
-                Console.WriteLine($"GAMS timeout of {timeout.TotalMinutes} minutes reached. Attempting graceful interrupt...");
+                // Timeout atingido
                 string interruptFilePath = Path.Combine(jobFolderPath, "gamsintr.txt");
                 await File.WriteAllTextAsync(interruptFilePath, "stop");
-
-                // Aguarda um tempo fixo para o GAMS finalizar a escrita dos resultados
-                await process.WaitForExitAsync(); // Sem timeout, aguarda o quanto for necessário
+                await processExitedTcs.Task; // Aguarda o processo terminar após a interrupção
             }
 
             if (process.ExitCode != 0)
             {
-                return new GamsExecutionResult(false, jobFolderPath, $"GAMS process exited with code {process.ExitCode}.");
+                string errorOutput = await process.StandardError.ReadToEndAsync();
+                return new GamsExecutionResult(false, jobFolderPath, $"GAMS process exited with code {process.ExitCode}. Error: {errorOutput}");
             }
 
             return new GamsExecutionResult(true, jobFolderPath);

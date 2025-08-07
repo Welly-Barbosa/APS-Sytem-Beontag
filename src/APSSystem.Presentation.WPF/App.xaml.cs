@@ -56,6 +56,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IExcelDataService, ExcelDataService>();
         services.AddSingleton<IGamsFileWriter, GamsFileWriter>();
         services.AddTransient<AlocacaoInventarioService>();
+        services.AddSingleton<IGamsExecutionService, GamsExecutionService>();
 
         // Parâmetros de Cálculo
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
