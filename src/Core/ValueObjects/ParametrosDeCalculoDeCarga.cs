@@ -8,5 +8,6 @@ public record ParametrosDeCalculoDeCarga(
     decimal FatorDePerda,
     int TempoProcessamentoBobina10k, // em minutos
     int TempoProcessamentoBobina15k, // em minutos
-    int TempoSetupPorBobina // em minutos
+    int TempoSetupPorBobina, // em minutos
+    decimal LarguraBobinaMaeGams // em polegadas
 );

@@ -14,7 +14,7 @@ public class DateOnlyToDateTimeConverter : IValueConverter
         {
             return dateOnly.ToDateTime(TimeOnly.MinValue);
         }
-        return null!; // Retorna nulo se o valor de entrada não for DateOnly
+        return null!;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -23,6 +23,6 @@ public class DateOnlyToDateTimeConverter : IValueConverter
         {
             return DateOnly.FromDateTime(dateTime);
         }
-        return null!; // Retorna nulo se o valor de entrada não for DateTime
+        return null!;
     }
 }

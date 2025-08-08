@@ -1,5 +1,6 @@
 ﻿using APSSystem.Application.Interfaces;
 using APSSystem.Application.Services;
+using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using APSSystem.Application.UseCases.GerarArquivoGams;
 using APSSystem.Core.Interfaces;
 using APSSystem.Core.Services;
@@ -9,7 +10,6 @@ using APSSystem.Infrastructure.Persistence.ExcelRepositories;
 using APSSystem.Infrastructure.Persistence.InMemoryRepositories;
 using APSSystem.Infrastructure.Services;
 using APSSystem.Presentation.WPF.ViewModels;
-// Adicionar o using para IConfiguration
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,14 +24,12 @@ public partial class App : System.Windows.Application
     public App()
     {
         _host = Host.CreateDefaultBuilder()
-            // Adiciona o nosso appsettings.json como fonte de configuração
             .ConfigureAppConfiguration((context, config) =>
             {
                 config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             })
             .ConfigureServices((context, services) =>
             {
-                // Passamos o 'context' que contém a configuração para o método
                 ConfigureDependencies(services, context.Configuration);
             })
             .Build();
@@ -39,15 +37,10 @@ public partial class App : System.Windows.Application
 
     private void ConfigureDependencies(IServiceCollection services, IConfiguration configuration)
     {
-        // --- O REGISTRO CRÍTICO QUE FALTAVA ---
-        // Torna o objeto IConfiguration disponível para qualquer serviço que o peça.
         services.AddSingleton(configuration);
-
-        // MediatR
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(GerarArquivoGamsCommandHandler).Assembly));
 
-        // Repositórios
         services.AddSingleton<IOrdemClienteRepository, ExcelOrdemClienteRepository>();
         services.AddSingleton<IItemDeInventarioRepository, ExcelItemDeInventarioRepository>();
         services.AddSingleton<IRecursoRepository, ExcelRecursoRepository>();
@@ -55,23 +48,23 @@ public partial class App : System.Windows.Application
         services.AddSingleton<ICalendarioRepository, InMemoryCalendarioRepository>();
         services.AddSingleton<INecessidadeDeProducaoRepository, InMemoryNecessidadeDeProducaoRepository>();
 
-        // Serviços
         services.AddSingleton<IScenarioService, ScenarioService>();
         services.AddSingleton<IExcelDataService, ExcelDataService>();
         services.AddSingleton<IGamsFileWriter, GamsFileWriter>();
-        services.AddSingleton<IGamsExecutionService, GamsExecutionService>(); // Mudado para Singleton para ser consistente
+        services.AddSingleton<IGamsExecutionService, GamsExecutionService>();
         services.AddTransient<AlocacaoInventarioService>();
         services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
+        services.AddTransient<ICalculadoraDePerdaService, CalculadoraDePerdaService>();
 
-        // Parâmetros de Cálculo
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
             LarguraBobinaMae: 78.74m, FatorDePerda: 1.05m,
             TempoProcessamentoBobina10k: 60, TempoProcessamentoBobina15k: 90,
-            TempoSetupPorBobina: 15));
+            TempoSetupPorBobina: 15, LarguraBobinaMaeGams: 78.74m));
 
-        // UI
         services.AddSingleton<MainWindow>();
+        services.AddTransient<ResultadosOtimizacaoWindow>();
         services.AddTransient<DashboardViewModel>();
+        services.AddTransient<ResultadosOtimizacaoViewModel>();
     }
 
     protected override async void OnStartup(StartupEventArgs e)

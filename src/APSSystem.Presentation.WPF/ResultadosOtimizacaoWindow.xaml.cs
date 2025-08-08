@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using APSSystem.Presentation.WPF.ViewModels;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
-namespace APSSystem.Presentation.WPF
+namespace APSSystem.Presentation.WPF;
+
+public partial class ResultadosOtimizacaoWindow : Window
 {
-    /// <summary>
-    /// Lógica interna para ResultadosOtimizacaoWindow.xaml
-    /// </summary>
-    public partial class ResultadosOtimizacaoWindow : Window
+    private readonly ResultadosOtimizacaoViewModel _viewModel;
+
+    // O construtor agora recebe o ViewModel via DI
+    public ResultadosOtimizacaoWindow(ResultadosOtimizacaoViewModel viewModel)
     {
-        public ResultadosOtimizacaoWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        _viewModel = viewModel;
+        DataContext = _viewModel; // Conecta a View ao ViewModel
+    }
+
+    // Método para ser chamado externamente para carregar os dados
+    public async void CarregarDadosDoJob(string caminhoPastaJob)
+    {
+        await _viewModel.CarregarResultados(caminhoPastaJob);
     }
 }

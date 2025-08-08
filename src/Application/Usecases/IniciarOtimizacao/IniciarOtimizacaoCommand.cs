@@ -1,13 +1,12 @@
-﻿using APSSystem.Core.Enums;
+﻿using APSSystem.Application.Interfaces; // Adicionar este using
+using APSSystem.Core.Enums;
 using MediatR;
 using System;
 
 namespace APSSystem.Application.UseCases.IniciarOtimizacao;
 
-/// <summary>
-/// Comando de alto nível para iniciar todo o ciclo de otimização.
-/// </summary>
+// ALTERADO: O comando agora retorna um GamsExecutionResult
 public record IniciarOtimizacaoCommand(
     CenarioTipo Cenario,
     DateOnly DataInicio,
-    DateOnly DataFim) : IRequest;
+    DateOnly DataFim) : IRequest<GamsExecutionResult>;

@@ -9,6 +9,7 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace APSSystem.Presentation.WPF.ViewModels;
 
 public class DashboardViewModel : ViewModelBase
 {
+    public event Action<GamsExecutionResult>? OptimizationCompleted;
     private readonly IMediator _mediator;
     private readonly IScenarioService _scenarioService;
     private readonly IExcelDataService _excelDataService;
@@ -73,15 +75,17 @@ public class DashboardViewModel : ViewModelBase
     public Axis[] YAxes { get; set; }
     public ObservableCollection<OrdemCliente> OrdensParaExibir { get; set; }
 
+
     // Comandos
     public ICommand AnalisarCenarioCommand { get; }
     public ICommand StartOptimizationCommand { get; }
 
-    public DashboardViewModel(IMediator mediator, IScenarioService scenarioService, IExcelDataService excelDataService)
+    public DashboardViewModel( IMediator mediator, IScenarioService scenarioService, IExcelDataService excelDataService)
     {
         _mediator = mediator;
         _scenarioService = scenarioService;
         _excelDataService = excelDataService;
+     
 
         Series = new ObservableCollection<ISeries>();
         OrdensParaExibir = new ObservableCollection<OrdemCliente>();
@@ -99,6 +103,7 @@ public class DashboardViewModel : ViewModelBase
         try
         {
             await _excelDataService.PreloadScenarioDataAsync(CenarioSelecionado);
+
             StatusMessage = "Analyzing data...";
             var query = new ObterDadosDashboardQuery(DataInicio, DataFim);
             var resultado = await _mediator.Send(query);
@@ -142,7 +147,7 @@ public class DashboardViewModel : ViewModelBase
                 Values = valoresDemandaBacklog,
                 StackGroup = 2,
                 Fill = new SolidColorPaint(SKColors.OrangeRed),
-                YToolTipLabelFormatter = pt => $"{pt.Coordinate.PrimaryValue:0}"            
+                YToolTipLabelFormatter = pt => $"{pt.Coordinate.PrimaryValue:0}"
             });
             var labelsEixoX = resultado.PontosDeDados.Select(p => p.Data.ToString("MM/dd")).ToArray();            //var labelsEixoX = resultado.PontosDeDados.Select(p => p.Data.ToString("dd/MM")).ToArray();
             //var separadores = Enumerable.Range(0, labelsEixoX.Length + 1).Select(i => i - 0.5).ToArray();
@@ -170,27 +175,24 @@ public class DashboardViewModel : ViewModelBase
     private async Task ExecutarOtimizacao()
     {
         IsIdle = false;
-        // MENSAGEM DE ESPERA PARA O USUÁRIO
         StatusMessage = "Waiting for Optimization...";
         try
         {
-            // O ViewModel agora só precisa enviar o comando de alto nível.
-            // O Handler na camada de Application fará a orquestração.
             var command = new IniciarOtimizacaoCommand(CenarioSelecionado, DataInicio, DataFim);
-            await _mediator.Send(command);
+            // Armazena o resultado retornado pelo Handler
+            var resultadoExecucao = await _mediator.Send(command);
 
-            StatusMessage = "Optimization complete! Results are ready for post-processing.";
+            StatusMessage = "Optimization complete! Opening results...";
 
-            // Abertura da nova tela (ainda simulada)
-            var resultadosView = new ResultadosOtimizacaoWindow();
-            resultadosView.Show();
+            // Dispara o evento, passando o resultado para a View
+            OptimizationCompleted?.Invoke(resultadoExecucao);
+
+            StatusMessage = "Results window opened.";
         }
         catch (Exception ex)
         {
-            // --- ALTERAÇÃO AQUI ---
-            // Exibe a mensagem de erro completa (que agora conterá o log do GAMS) em uma caixa de diálogo
-            StatusMessage = "ERROR during optimization: See dialog for details.";
-            MessageBox.Show(ex.Message, "Optimization Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            StatusMessage = $"ERROR during optimization: {ex.Message}";
+            // Usar a janela de erro customizada
         }
         finally
         {

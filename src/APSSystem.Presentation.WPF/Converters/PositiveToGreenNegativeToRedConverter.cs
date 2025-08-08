@@ -7,6 +7,8 @@ namespace APSSystem.Presentation.WPF.Converters;
 
 public class PositiveToGreenNegativeToRedConverter : IValueConverter
 {
+    public static readonly PositiveToGreenNegativeToRedConverter Instance = new();
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is decimal number)

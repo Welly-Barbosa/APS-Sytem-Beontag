@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace APSSystem.Application.UseCases.IniciarOtimizacao;
 
-public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacaoCommand>
+public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacaoCommand, GamsExecutionResult>
 {
     private readonly IGamsExecutionService _gamsService;
     private readonly IScenarioService _scenarioService;
@@ -44,7 +44,7 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
         _configuration = configuration;
     }
 
-    public async Task Handle(IniciarOtimizacaoCommand request, CancellationToken cancellationToken)
+    public async Task<GamsExecutionResult> Handle(IniciarOtimizacaoCommand request, CancellationToken cancellationToken)
     {
         // Passo 1: Definir o cenário para que os repositórios leiam os arquivos corretos
         _scenarioService.DefinirCenario(request.Cenario);
@@ -74,7 +74,10 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
         // await _mediator.Send(new ProcessarResultadoGamsCommand(resultadoExecucao.CaminhoPastaJob), cancellationToken);
 
         Console.WriteLine($"Execução do GAMS concluída com sucesso. Resultados estão em: {resultadoExecucao.CaminhoPastaJob}");
+        
+        return resultadoExecucao;
     }
+
 
     /// <summary>
     /// Reutiliza a mesma lógica do nosso pré-processador de dashboard para coletar e agregar dados.

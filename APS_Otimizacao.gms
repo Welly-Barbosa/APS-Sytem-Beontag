@@ -338,7 +338,7 @@ LOOP(c$c_unicos(c),
         p_tempoTotalPadrao(pt, j)$(s_contadorPadroes >= ord(pt) and p_velocidadeMaq_fpm(j) > 0) =
             p_tempoSetupBase(j) + (s_comprimentoMae_pes / p_velocidadeMaq_fpm(j));
 
-        CorteMestre_RMIP.reslim = 300;
+        CorteMestre_RMIP.reslim = 60;
         CorteMestre_RMIP.optcr = 0.02;
         SOLVE CorteMestre_RMIP using RMIP minimizing z_custoTotal;
         p_precoDual(p) = eq_atendeDemanda.m(p);
