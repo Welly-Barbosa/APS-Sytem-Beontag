@@ -1,0 +1,98 @@
+=1
+=2
+=0IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+=1
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+=2
+=1
+--- GMO setup time: 0.00s
+=2
+=1
+--- GMO memory 0.51 Mb (peak 0.51 Mb)
+=2
+=1
+--- Dictionary memory 0.00 Mb
+=2
+=1
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.01 Mb)
+=2
+=1
+--- Starting Cplex
+=2
+=C
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               3000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 2 rows and 28 columns.
+MIP Presolve added 4 rows and 4 columns.
+Reduced MIP has 3 rows, 52 columns, and 56 nonzeros.
+Reduced MIP has 2 binaries, 50 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.15 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+MIP Presolve eliminated 2 rows and 2 columns.
+MIP Presolve added 4 rows and 4 columns.
+Reduced MIP has 5 rows, 54 columns, and 63 nonzeros.
+Reduced MIP has 2 binaries, 52 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.09 ticks)
+Dual steepest-edge pricing selected.
+Probing time = 0.00 sec. (0.01 ticks)
+Clique table members: 1.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 4 threads.
+Parallel mode: deterministic, using up to 1 threads for parallel tasks at root LP.
+Tried aggregator 1 time.
+LP Presolve eliminated 4 rows and 32 columns.
+Reduced LP has 1 rows, 22 columns, and 22 nonzeros.
+Presolve time = 0.00 sec. (0.02 ticks)
+
+Iteration      Dual Objective            In Variable           Out Variable
+     1 sI            0.000000v_geraCorte('851952','1eq_sub_larguraBob artif
+     2               1.004844v_geraCorte('88512','6'v_geraCorte('851952','1
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.04 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                            0.0000       42.1048              --- 
+Found incumbent of value 0.000000 after 0.00 sec. (0.34 ticks)
+      0     0        1.0048     1        0.0000        1.0048        2     --- 
+*     0+    0                            1.0015        1.0048             0.33%
+Found incumbent of value 1.001507 after 0.00 sec. (0.42 ticks)
+      0     0        1.0047     3        1.0015    MIRcuts: 1        5    0.32%
+      0     0        1.0046     2        1.0015    MIRcuts: 1        8    0.31%
+      0     0        1.0046     4        1.0015    MIRcuts: 1        9    0.31%
+      0     2        1.0046     4        1.0015        1.0046        9    0.31%
+Elapsed time = 0.02 sec. (0.92 ticks, tree = 0.02 MB)
+*    83+   15                            1.0025        1.0046             0.21%
+Found incumbent of value 1.002461 after 0.02 sec. (1.29 ticks)
+*  2473+  559                            1.0026        1.0045             0.19%
+Found incumbent of value 1.002622 after 0.03 sec. (8.32 ticks)
+*  2810+  592                            1.0028        1.0045             0.17%
+Found incumbent of value 1.002845 after 0.05 sec. (9.31 ticks)
+
+Performing restart 1
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIP Presolve eliminated 0 rows and 2 columns.
+MIP Presolve modified 2 coefficients.
+Aggregator did 1 substitutions.
+Reduced MIP has 4 rows, 51 columns, and 58 nonzeros.
+Reduced MIP has 3 binaries, 48 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.17 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 4 rows, 51 columns, and 58 nonzeros.
+Reduced MIP has 3 b

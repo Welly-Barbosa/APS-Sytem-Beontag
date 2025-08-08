@@ -1,0 +1,189 @@
+MIP Presolve eliminated 0 rows and 150 columns.
+Reduced MIP has 117 rows, 2442 columns, and 6648 nonzeros.
+Reduced MIP has 39 binaries, 2403 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (2.87 ticks)
+Tried aggregator 1 time.
+Reduced MIP has 117 rows, 2442 columns, and 6648 nonzeros.
+Reduced MIP has 39 binaries, 2403 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (3.16 ticks)
+Represolve time = 0.28 sec. (224.70 ticks)
+Dual steepest-edge pricing selected.
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.00 sec. (1.49 ticks)
+
+Iteration log . . .
+Iteration:     1   Dual objective     =            28.733333
+Iteration:    85   Dual objective     =           246.863105
+Iteration:   158   Dual objective     =           260.687291
+Iteration:   228   Dual objective     =           271.669461
+Iteration:   299   Dual objective     =           272.725100
+Iteration:   361   Dual objective     =           274.453198
+  35680     0      274.6199   111      281.1000      Cuts: 10    98886    2.28%
+  35680     0      274.6246   110      281.1000      Cuts: 36    98897    2.28%
+  35680     0      274.6361   114      281.1000      Cuts: 38    98908    2.28%
+  35680     0      274.6410   115      281.1000      Cuts: 29    98915    2.28%
+  35680     0      274.6423   114      281.1000      Cuts: 17    98922    2.28%
+  35680     0      274.6527   114      281.1000       Cuts: 8    98933    2.28%
+  35680     0      274.6546   116      281.1000   MIRcuts: 10    98940    2.28%
+  35680     0      274.6551   112      281.1000    MIRcuts: 5    98946    2.28%
+  35680     0      274.6572   114      281.1000    MIRcuts: 8    98953    2.28%
+  35680     2      274.6572   114      281.1000      274.6978    98953    2.28%
+  36556   795      275.1787    76      281.1000      274.6978   101544    2.28%
+  38707  2608      276.0001    60      281.1000      274.6978   108696    2.28%
+  42372  6052      274.9020   104      281.1000      274.6978   117604    2.28%
+  48782 12049      275.2112    75      281.1000      274.7080   130138    2.27%
+Elapsed time = 14.62 sec. (16295.54 ticks, tree = 55.20 MB)
+  53319 16027      275.4176    67      281.1000      274.7171   138050    2.27%
+  58841 21758      275.6184    69      281.1000      274.7255   150286    2.27%
+  64329 27587      276.3708    73      281.1000      274.7313   163106    2.27%
+  70728 33617      274.9497    87      281.1000      274.7313   176240    2.27%
+  76925 39904      275.9086    81      281.1000      274.7405   189139    2.26%
+  83317 45485      275.7365    83      281.1000      274.7496   203430    2.26%
+  88796 51932      275.0184    78      281.1000      274.7607   216208    2.26%
+  95643 58384      274.9251    90      281.1000      274.7692   228718    2.25%
+ 102543 65483      274.9829    85      281.1000      274.7692   242059    2.25%
+ 108322 71637      279.0132    50      281.1000      274.7749   256251    2.25%
+                                                     Cuts: 13                  
+Elapsed time = 22.30 sec. (25833.55 ticks, tree = 345.42 MB)
+ 114266 76914      275.9473    91      281.1000      274.7799   269215    2.25%
+ 119928 82535      275.2827    98      281.1000      274.7867   284156    2.25%
+ 125494 88428      275.2177    90      281.1000      274.7885   299388    2.25%
+ 131829 94593      274.9837    97      281.1000      274.7900   310640    2.24%
+ 137651 100062      275.0337   100      281.1000      274.7945   325989    2.24%
+ 143864 105822      281.0332    66      281.1000      274.7973   341213    2.24%
+*144037+105832                          281.0000      274.7973             2.21%
+Found incumbent of value 281.000000 after 26.77 sec. (31604.08 ticks)
+ 148467 110495      275.7874    87      281.0000      274.7973   353489    2.21%
+ 154890 115852      275.0376    98      281.0000      274.7982   366173    2.21%
+ 161079 123966      275.0336   104      281.0000      274.8016   383050    2.21%
+*162395+125141                          280.8000      274.8017             2.14%
+Found incumbent of value 280.800000 after 29.45 sec. (34639.20 ticks)
+ 165277 126892      275.1971    81      280.8000      274.8055   391822    2.13%
+                                                  MIRcuts: 13                  
+Elapsed time = 30.25 sec. (35372.47 ticks, tree = 612.84 MB)
+ 169636 132014      278.5070    58      280.8000      274.8060   407399    2.13%
+                                                  MIRcuts: 12                  
+ 174940 136052      275.9418    82      280.8000      274.8086   418822    2.13%
+ 179524 140552      278.0513    49      280.8000      274.8095   434206    2.13%
+ 184581 146223      275.6803    92      280.8000      274.8102   450565    2.13%
+ 190552 151461      275.0301   103      280.8000      274.8102   464360    2.13%
+*191735+153111                          280.7000      274.8120             2.10%
+Found incumbent of value 280.700000 after 34.88 sec. (40428.34 ticks)
+ 195240 155526      275.8400    99      280.7000      274.8120   478427    2.10%
+*197922+159364                          280.6000      274.8120             2.06%
+Found incumbent of value 280.600000 after 35.94 sec. (41701.07 ticks)
+*198692+159545                          280.5000      274.8141             2.03%
+Found incumbent of value 280.500000 after 36.19 sec. (41945.65 ticks)
+ 199173 160332      275.8919    82      280.5000      274.8153   498440    2.03%
+ 204517 165476      280.2510    59      280.5000      274.8163   511778    2.03%
+ 210230 169675      277.6594    79      280.5000      274.8200   524364    2.02%
+                                                   MIRcuts: 2                  
+ 215269 175537      275.9643    84      280.5000      274.8200   543031    2.02%
+Elapsed time = 38.72 sec. (44912.52 ticks, tree = 868.61 MB)
+ 220675 180041      276.2736    81      280.5000      274.8205   555323    2.02%
+                                                     Cuts: 10                  
+ 226513 186318      276.3430    88      280.5000      274.8208   572432    2.02%
+ 231667 191400      276.3351    89      280.5000      274.8208   586207    2.02%
+ 236842 196729      275.4705    90      280.5000      274.8234   601027    2.02%
+ 242479 201966      280.1137    63      280.5000      274.8259   618355    2.02%
+ 248038 206973      276.0488    65      280.5000      274.8263   636734    2.02%
+ 253058 213412      275.9371    86      280.5000      274.8303   654255    2.02%
+                                                   MIRcuts: 7                  
+ 256999 216552      275.3893    95      280.5000      274.8311   665114    2.02%
+ 262053 221872      275.3268    96      280.5000      274.8318   681601    2.02%
+ 267215 226101      275.3393    95      280.5000      274.8318   692501    2.02%
+Elapsed time = 47.20 sec. (54451.08 ticks, tree = 1137.76 MB)
+ 271982 230117      276.3430    86      280.5000      274.8322   702729    2.02%
+ 277457 237468      276.3866    88      280.5000      274.8322   724095    2.02%
+ 282888 242477      275.2316    90      280.5000      274.8322   737813    2.02%
+ 287528 247303      276.7801    86      280.5000      274.8322   754374    2.02%
+ 292517 251433      278.3498    60      280.5000      274.8322   769237    2.02%
+ 297829 255857      275.5766    83      280.5000      274.8322   783280    2.02%
+ 302585 261315      275.0557    99      280.5000      274.8322   801361    2.02%
+ 307524 266760      275.4049    91      280.5000      274.8322   823451    2.02%
+ 311981 270934      278.5086    64      280.5000      274.8322   838058    2.02%
+ 316632 275330      275.0557    98      280.5000      274.8322   853471    2.02%
+Elapsed time = 56.00 sec. (63989.03 ticks, tree = 1405.50 MB)
+ 321936 280772      277.3618    89      280.5000      274.8329   871671    2.02%
+ 327630 286109      275.8454    94      280.5000      274.8335   886740    2.02%
+ 333086 291403      275.3575    91      280.5000      274.8369   899905    2.02%
+ 339320 297887      275.5684    88      280.5000      274.8369   914414    2.02%
+ 345332 302531      275.5301    81      280.5000      274.8369   925486    2.02%
+ 350861 308698      277.0039    77      280.5000      274.8379   940262    2.02%
+ 356612 314947      276.4253    78      280.5000      274.8403   956611    2.02%
+ 361966 321369      280.2953    73      280.5000      274.8410   974887    2.02%
+ 367384 325522      275.9850    79      280.5000      274.8424   986279    2.02%
+ 372534 331388      277.1245    70      280.5000      274.8427  1004108    2.02%
+Elapsed time = 65.66 sec. (73526.99 ticks, tree = 1708.26 MB)
+ 378343 336545      277.2166    89      280.5000      274.8432  1020270    2.02%
+ 384305 340811      275.5230    90      280.5000      274.8432  1032831    2.02%
+ 390620 347844      277.1699    85      280.5000      274.8432  1051778    2.02%
+ 395827 352837      279.6000    68      280.5000      274.8432  1065444    2.02%
+ 401658 358452      277.1162    97      280.5000      274.8448  1080628    2.02%
+                                                  MIRcuts: 12                  
+ 405669 363453      275.3900    84      280.5000      274.8451  1093836    2.02%
+ 410845 367111      276.3614    73      280.5000      274.8466  1104803    2.02%
+ 415674 372545      278.1397    90      280.5000      274.8466  1121328    2.02%
+                                                   MIRcuts: 6                  
+ 419568 376522      275.7166    91      280.5000      274.8490  1135793    2.01%
+ 424456 380174      275.9119    63      280.5000      274.8500  1146232    2.01%
+Elapsed time = 75.62 sec. (83065.12 ticks, tree = 1971.47 MB)
+ 429370 385479      278.6891    54      280.5000      274.8512  1160736    2.01%
+*429638+385502                          280.3000      274.8512             1.94%
+Found incumbent of value 280.300000 after 76.92 sec. (84065.27 ticks)
+
+Mixed integer rounding cuts applied:  119
+Zero-half cuts applied:  17
+Gomory fractional cuts applied:  11
+
+Root node processing (before b&c):
+  Real time             =    0.95 sec. (835.22 ticks)
+Parallel b&c, 4 threads:
+  Real time             =   76.25 sec. (83601.63 ticks)
+  Sync time (average)   =    6.40 sec.
+  Wait time (average)   =    0.04 sec.
+                          ------------
+Total (root+branch&cut) =   77.20 sec. (84436.85 ticks)
+
+--- MIP status (102): integer optimal, tolerance.
+--- Cplex Time: 77.38sec (det. 84437.80 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Parallel mode: deterministic, using up to 4 threads for concurrent optimization:
+ * Starting dual Simplex on 1 thread...
+ * Starting Barrier on 3 threads...
+Tried aggregator 1 time.
+LP Presolve eliminated 289 rows and 330314 columns.
+All rows and columns eliminated.
+Presolve time = 0.08 sec. (75.70 ticks)
+
+Dual simplex solved model.
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.25sec (det. 117.78 ticks)
+
+
+Solution satisfies tolerances
+
+--- Reading solution for model CorteMestre_Final[LST:39716]
+--- APS_Otimizacao.gms(982) 67 Mb  82 secs[FIL:"C:\Users\55159\source\repos\APSSystem_NOVO\APS_Otimizacao.gms",982,0]
+--- Executing after solve: elapsed 0:05:28.558[LST:370413]
+--- APS_Otimizacao.gms(1047) 72 Mb[FIL:"C:\Users\55159\source\repos\APSSystem_NOVO\APS_Otimizacao.gms",1047,0]
+--- Putfile f_composicao_csv C:\Users\55159\source\repos\APSSystem_NOVO\f_composicao_csv.put[FIL:"C:\Users\55159\source\repos\APSSystem_NOVO\f_composicao_csv.put",1,1]
+--- Putfile f_plano_csv C:\Users\55159\source\repos\APSSystem_NOVO\f_plano_csv.put[FIL:"C:\Users\55159\source\repos\APSSystem_NOVO\f_plano_csv.put",1,1]
+--- Putfile f_status_csv C:\Users\55159\source\repos\APSSystem_NOVO\f_status_csv.put[FIL:"C:\Users\55159\source\repos\APSSystem_NOVO\f_status_csv.put",1,1]
+*** Status: Normal completion[LST:370652]
+--- Job APS_Otimizacao.gms Stop 08/07/25 16:52:03 elapsed 0:05:28.631

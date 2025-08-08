@@ -18,7 +18,7 @@ $TITLE Otimizacao de Corte de Bobinas - Beontag (v15.1 - GEEK)
 $onDotL
 
 * --- Opcoes do Solver
-Option optcr  = 0.15;
+*Option optcr  = 0.15;
 *Option reslim = 3600;
 Option solPrint = off;
 Option limRow = 0, limCol = 0;
@@ -69,16 +69,16 @@ Parameters
     p_velocidadeMaq_fpm(j)               'Velocidade da maquina em pes por minuto';
 
 Scalars
-    s_timeFenceDias        / 2 /
+    s_timeFenceDias        / 3 /
     s_timeFenceMultiplier  / 1000 /
-    s_pesoCustoProducao    / 1 /
+    s_pesoCustoProducao    / 100 /
     s_pesoCustoAtraso      / 10 /
     s_pesoCustoExcedente   / 0.1 /
-    s_pesoCustoFalta       / 10000 /
+    s_pesoCustoFalta       / 10000000 /
 * --- NOVOS PARAMETROS PARA PREENCHIMENTO DE CAPACIDADE ---
-    s_diasParaPreencher    / 2 /
+    s_diasParaPreencher    / 3 /
 *'Numero de dias iniciais cuja capacidade deve ser preenchida'
-    s_percMinUtilizacao    / 0 /;
+    s_percMinUtilizacao    / 0.80 /;
 *'Percentual minimo de utilizacao da capacidade nesse periodo';
 * ------------------------------------------------------------------------------
 * FASE 1.4: DECLARACOES PARA RELATORIOS CSV (GEEK - VERSAO FINAL)
@@ -303,11 +303,22 @@ Scalar
 * --- NOVO ESCALAR PARA CONTROLE DE TEMPO GLOBAL ---
     s_tempoMaximoTotal  'Tempo maximo total de execucao em segundos' / 300 /;
 * DEFINIDO PARA 2 HORAS (7200s). AJUSTE CONFORME NECESSARIO.
-
+ 
 p_rendimentoPadrao(pt, p) = 0;
 p_numCortes(pt) = 0;
 
 s_contadorPadroes = 0;
+
+* --- INICIO DA ESTRATEGIA DE WARM-UP (GEEK) ---
+* Para a fase de geracao de colunas, usamos pesos mais balanceados
+* para garantir que os precos duais sejam estaveis e permitam a
+* criacao de bons padroes de corte.
+display "[INFO] Usando pesos de WARM-UP para a geracao de colunas.";
+s_pesoCustoProducao= 1;
+s_pesoCustoAtraso = 10;
+s_pesoCustoExcedente= 0.1;
+s_pesoCustoFalta= 5000;
+* --------------------------------------------------
 
 LOOP(c$c_unicos(c),
     p_c(p) = yes$(p_comprimentoProduto(p) = c.val);
@@ -320,26 +331,18 @@ LOOP(c$c_unicos(c),
         p_rendimentoPadrao(pt, p)$(ord(pt) = s_contadorPadroes) = p_numCortes(pt);
     );
 *   Acao: Relaxar o gap de otimalidade para 5% para o problema mestre
-    Option optcr = 0.05;
+    Option optcr = 0.02;
     
     s_podeMelhorar = 1;
     WHILE(s_podeMelhorar = 1,
         p_tempoTotalPadrao(pt, j)$(s_contadorPadroes >= ord(pt) and p_velocidadeMaq_fpm(j) > 0) =
             p_tempoSetupBase(j) + (s_comprimentoMae_pes / p_velocidadeMaq_fpm(j));
-        
-        CorteMestre_RMIP.reslim = 300;   
+
+        CorteMestre_RMIP.reslim = 300;
+        CorteMestre_RMIP.optcr = 0.02;
         SOLVE CorteMestre_RMIP using RMIP minimizing z_custoTotal;
         p_precoDual(p) = eq_atendeDemanda.m(p);
 
-* --- INICIO DO MECANISMO DE ESCAPE (GEEK) ---
-* Verifica se o tempo total de execucao excedeu o limite.
-       if(timeElapsed > s_tempoMaximoTotal,
-            display "**** ALERTA: Tempo Maximo de Execucao Atingido. ****";
-            display "**** Saindo do loop de geracao de colunas.        ****";
-            s_podeMelhorar = 0;
-            abort "**** ALERTA: Tempo Maximo de Execucao Atingido. ****";
-       );
-* --- FIM DO MECANISMO DE ESCAPE ---       
 * Monitoramento do progresso da Geração de Colunas
         display "[MONITORAMENTO] Custo Mestre Iterativo:", z_custoTotal.l;
 
@@ -348,15 +351,9 @@ LOOP(c$c_unicos(c),
             v_geraCorte.up(p) = p_maxCortes(j);
             
             GeraPadrao.reslim = 300;
-            GeraPadrao.optcr = 0.05;
+            GeraPadrao.optcr = 0.02;
             SOLVE GeraPadrao using MIP maximizing z_valorPadrao;
             
-            if(timeElapsed > s_tempoMaximoTotal,
-                display "**** ALERTA: Tempo Maximo de Execucao Atingido. ****";
-                display "**** Saindo do loop de geracao de colunas.        ****";
-                s_podeMelhorar = 0;
-                abort "**** ALERTA: Tempo Maximo de Execucao Atingido. ****";
-            );
 * Monitoramento do valor do padrão encontrado
             if(z_valorPadrao.l > 1.001,
                 display "[MONITORAMENTO] Novo Padrao Encontrado! Valor:", z_valorPadrao.l;
@@ -377,8 +374,19 @@ LOOP(c$c_unicos(c),
 * ==============================================================================
 * FASE 5: SOLUCAO FINAL E GERACAO DE RELATORIOS
 * ==============================================================================
-option reslim = 3600;
-option optcr = 0.0;
+ 
+* --- RESTAURANDO OS PESOS ESTRATEGICOS FINAIS (GEEK) ---
+* Agora que temos um bom conjunto de padroes, aplicamos a hierarquia
+* de prioridades final para a selecao da solucao.
+display "[INFO] Restaurando pesos ESTRATEGICOS para o solve final.";
+s_pesoCustoProducao   = 100;    
+s_pesoCustoAtraso      = 10;     
+s_pesoCustoExcedente   = 0.1;     
+s_pesoCustoFalta       = 50000 ; 
+* --------------------------------------------------
+
+CorteMestre_Final.reslim = 300;
+CorteMestre_Final.optcr = 0.01;
 option solPrint = on;
 SOLVE CorteMestre_Final using MIP minimizing z_custoTotal;
 

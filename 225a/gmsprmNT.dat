@@ -1,0 +1,7 @@
+Input=C:\Users\55159\source\repos\APSSystem_NOVO\APS_Otimizacao.gms
+ScrDir=225a
+SysDir=C:\GAMS\50
+ScriptNext=225a\gamsnext.cmd
+LogOption=3
+AppendLog=1
+NetLicense=225a\gamslice.dat

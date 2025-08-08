@@ -9,6 +9,8 @@ using APSSystem.Infrastructure.Persistence.ExcelRepositories;
 using APSSystem.Infrastructure.Persistence.InMemoryRepositories;
 using APSSystem.Infrastructure.Services;
 using APSSystem.Presentation.WPF.ViewModels;
+// Adicionar o using para IConfiguration
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
@@ -22,50 +24,52 @@ public partial class App : System.Windows.Application
     public App()
     {
         _host = Host.CreateDefaultBuilder()
+            // Adiciona o nosso appsettings.json como fonte de configuração
+            .ConfigureAppConfiguration((context, config) =>
+            {
+                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            })
             .ConfigureServices((context, services) =>
             {
-                ConfigureDependencies(services);
+                // Passamos o 'context' que contém a configuração para o método
+                ConfigureDependencies(services, context.Configuration);
             })
             .Build();
     }
 
-    private void ConfigureDependencies(IServiceCollection services)
+    private void ConfigureDependencies(IServiceCollection services, IConfiguration configuration)
     {
-        // MediatR para orquestração de casos de uso
+        // --- O REGISTRO CRÍTICO QUE FALTAVA ---
+        // Torna o objeto IConfiguration disponível para qualquer serviço que o peça.
+        services.AddSingleton(configuration);
+
+        // MediatR
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(GerarArquivoGamsCommandHandler).Assembly));
 
-        // --- Repositórios ---
-        // Repositórios que leem de planilhas Excel
+        // Repositórios
         services.AddSingleton<IOrdemClienteRepository, ExcelOrdemClienteRepository>();
         services.AddSingleton<IItemDeInventarioRepository, ExcelItemDeInventarioRepository>();
         services.AddSingleton<IRecursoRepository, ExcelRecursoRepository>();
         services.AddSingleton<IProdutoRepository, ExcelProdutoRepository>();
-
-        // Repositórios que usam dados em memória
         services.AddSingleton<ICalendarioRepository, InMemoryCalendarioRepository>();
-
-        // --- O REGISTRO QUE FALTAVA ---
-        // Adiciona a implementação em memória para o repositório de Necessidade de Produção
         services.AddSingleton<INecessidadeDeProducaoRepository, InMemoryNecessidadeDeProducaoRepository>();
 
-
-        // --- Serviços ---
-        // Serviços de negócio e de infraestrutura
+        // Serviços
         services.AddSingleton<IScenarioService, ScenarioService>();
         services.AddSingleton<IExcelDataService, ExcelDataService>();
         services.AddSingleton<IGamsFileWriter, GamsFileWriter>();
+        services.AddSingleton<IGamsExecutionService, GamsExecutionService>(); // Mudado para Singleton para ser consistente
         services.AddTransient<AlocacaoInventarioService>();
-        services.AddSingleton<IGamsExecutionService, GamsExecutionService>();
+        services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
 
         // Parâmetros de Cálculo
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
             LarguraBobinaMae: 78.74m, FatorDePerda: 1.05m,
             TempoProcessamentoBobina10k: 60, TempoProcessamentoBobina15k: 90,
             TempoSetupPorBobina: 15));
-        services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
 
-        // --- Camada de UI (Views e ViewModels) ---
+        // UI
         services.AddSingleton<MainWindow>();
         services.AddTransient<DashboardViewModel>();
     }

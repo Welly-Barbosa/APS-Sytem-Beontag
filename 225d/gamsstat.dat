@@ -1,0 +1,122 @@
+=1
+=2
+=0IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+=1
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+=2
+=1
+--- GMO setup time: 0.00s
+=2
+=1
+--- GMO memory 0.51 Mb (peak 0.51 Mb)
+=2
+=1
+--- Dictionary memory 0.00 Mb
+=2
+=1
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.01 Mb)
+=2
+=1
+--- Starting Cplex
+=2
+=C
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               3000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.050000000000000003
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 1 rows and 27 columns.
+MIP Presolve added 4 rows and 4 columns.
+Reduced MIP has 4 rows, 53 columns, and 61 nonzeros.
+Reduced MIP has 2 binaries, 51 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.14 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+MIP Presolve eliminated 2 rows and 2 columns.
+MIP Presolve added 4 rows and 4 columns.
+Reduced MIP has 6 rows, 55 columns, and 67 nonzeros.
+Reduced MIP has 2 binaries, 53 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.09 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+Clique table members: 1.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 4 threads.
+Parallel mode: deterministic, using up to 1 threads for parallel tasks at root LP.
+Tried aggregator 1 time.
+LP Presolve eliminated 5 rows and 51 columns.
+Reduced LP has 1 rows, 4 columns, and 4 nonzeros.
+Presolve time = 0.00 sec. (0.02 ticks)
+
+Iteration      Dual Objective            In Variable           Out Variable
+     1 sI            0.000000v_geraCorte('88512','10eq_sub_larguraBob artif
+     2               1.140904v_geraCorte('88020','9.v_geraCorte('88512','10
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (0.03 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                            0.0000       43.4163              --- 
+Found incumbent of value 0.000000 after 0.00 sec. (0.33 ticks)
+      0     0        1.1409     1        0.0000        1.1409        2     --- 
+*     0+    0                            1.1250        1.1409             1.41%
+Found incumbent of value 1.125000 after 0.00 sec. (0.42 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.01 sec. (0.42 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.01 sec. (0.42 ticks)
+=C
+=1
+--- MIP status (102): integer optimal, tolerance.
+=2
+=1
+--- Cplex Time: 0.01sec (det. 0.42 ticks)
+
+=2
+=1
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+=2
+=1
+--- Fixing integer variables and solving final LP...
+=2
+=C
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               3000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.050000000000000003
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 76 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.02 ticks)
+=C
+=1
+--- Fixed MIP status (1): optimal.
+=2
+=1
+--- Cplex Time: 0.00sec (det. 0.02 ticks)
+
+=2
+=C
+=CSolution satisfies tolerances
+=C

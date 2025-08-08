@@ -1,0 +1,761 @@
+
+--- Job APS_Otimizacao.gms Start 08/08/25 11:23:04 50.2.0 d60bb663 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\GAMS\50\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input C:\Users\55159\source\repos\APSSystem_NOVO\APS_Otimizacao.gms
+    PageSize 0
+    ScrDir C:\Users\55159\source\repos\APSSystem_NOVO\225e\
+    SysDir C:\GAMS\50\
+    LogOption 3
+    AppendLog 1
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: Wellington Barbosa                             G250725+0003Cc-GEN
+          Wellington Barbosa Consulting                             DCE4542
+          225e\gamslice.dat
+          node:21809403 mem:8 cores:4 ipport:55193 v:2                     
+          Evaluation license: Not for commercial or production use
+          The expiration date of time-limited license is Aug 24, 2025
+System information: 4 physical cores and 8 Gb physical memory detected
+GAMS 50.2.0   Copyright (C) 1987-2025 GAMS Development. All rights reserved
+--- Starting compilation
+--- APS_Otimizacao.gms(45) 2 Mb
+--- . GamsInputData.dat(449) 3 Mb
+--- APS_Otimizacao.gms(523) 4 Mb
+--- Starting execution: elapsed 0:00:00.028
+--- APS_Otimizacao.gms(772) 5 Mb
+--- Generating RMIP model CorteMestre_RMIP
+--- APS_Otimizacao.gms(792) 31 Mb
+--- LOOPS* = 10000
+---       FOR/WHILE = 1
+---   202 rows  240,216 columns  244,259 non-zeroes
+---   239,976 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 2.000E+00, 1.728E+03] - Zero values observed as well
+--- Bound     [min, max] : [        NA,        NA] - Zero values observed as well
+--- Matrix    [min, max] : [ 1.000E-01, 1.000E+04]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:00.190
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 10.78 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 39.93 Mb (peak 41.76 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 4.58 Mb (peak 19.99 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 0
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Parallel mode: deterministic, using up to 4 threads for concurrent optimization:
+ * Starting dual Simplex on 1 thread...
+ * Starting Barrier on 3 threads...
+Tried aggregator 1 time.
+LP Presolve eliminated 130 rows and 239576 columns.
+Reduced LP has 71 rows, 640 columns, and 1480 nonzeros.
+Presolve time = 0.09 sec. (65.77 ticks)
+
+Iteration log . . .
+Iteration:     1   Dual objective     =        890057.598933
+Iteration:    62   Dual objective     =        890140.797867
+Iteration:   124   Dual objective     =        890148.567757
+
+Dual simplex solved model.
+
+
+--- LP status (1): optimal.
+--- Cplex Time: 0.16sec (det. 92.81 ticks)
+
+
+Optimal solution found
+Objective:       890148.567757
+
+--- Reading solution for model CorteMestre_RMIP
+--- APS_Otimizacao.gms(792) 37 Mb
+--- Executing after solve: elapsed 0:00:00.729
+--- APS_Otimizacao.gms(772) 37 Mb
+--- Generating MIP model GeraPadrao
+--- APS_Otimizacao.gms(804) 37 Mb
+--- LOOPS* = 10000
+---       FOR/WHILE = 1
+---       j = ASHE1
+---   2 rows  51 columns  101 non-zeroes
+---   50 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 7.874E+01, 7.874E+01] - Zero values observed as well
+--- Bound     [min, max] : [ 9.000E+00, 9.000E+00] - Zero values observed as well
+--- Matrix    [min, max] : [ 2.222E-02, 2.650E+01]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:00.744
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 0
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.00 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 51 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.01 ticks)
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.02 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model GeraPadrao
+--- Executing after solve: elapsed 0:00:00.816
+--- APS_Otimizacao.gms(772) 37 Mb
+--- Generating MIP model GeraPadrao
+--- APS_Otimizacao.gms(804) 37 Mb
+--- LOOPS* = 10000
+---       FOR/WHILE = 1
+---       j = ASHE2
+---   2 rows  51 columns  101 non-zeroes
+---   50 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 7.874E+01, 7.874E+01] - Zero values observed as well
+--- Bound     [min, max] : [ 9.000E+00, 9.000E+00] - Zero values observed as well
+--- Matrix    [min, max] : [ 2.222E-02, 2.650E+01]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:00.818
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.00 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 51 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.01 ticks)
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.02 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model GeraPadrao
+--- Executing after solve: elapsed 0:00:00.887
+--- APS_Otimizacao.gms(772) 37 Mb
+--- Generating MIP model GeraPadrao
+--- APS_Otimizacao.gms(804) 37 Mb
+--- LOOPS* = 10000
+---       FOR/WHILE = 1
+---       j = ATLAS
+---   2 rows  51 columns  101 non-zeroes
+---   50 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 7.874E+01, 7.874E+01] - Zero values observed as well
+--- Bound     [min, max] : [ 1.000E+01, 1.000E+01] - Zero values observed as well
+--- Matrix    [min, max] : [ 2.222E-02, 2.650E+01]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:00.894
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.00 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 51 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.01 ticks)
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.02 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model GeraPadrao
+--- Executing after solve: elapsed 0:00:00.965
+--- APS_Otimizacao.gms(772) 37 Mb
+--- Generating RMIP model CorteMestre_RMIP
+--- APS_Otimizacao.gms(792) 47 Mb
+--- LOOPS* = 15000
+---       FOR/WHILE = 1
+---   202 rows  240,216 columns  245,279 non-zeroes
+---   239,976 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 2.000E+00, 1.728E+03] - Zero values observed as well
+--- Bound     [min, max] : [        NA,        NA] - Zero values observed as well
+--- Matrix    [min, max] : [ 1.000E-01, 1.000E+04]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:01.201
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 10.78 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 39.93 Mb (peak 41.76 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 4.58 Mb (peak 20.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Parallel mode: deterministic, using up to 4 threads for concurrent optimization:
+ * Starting primal Simplex on 1 thread...
+ * Starting Barrier on 3 threads...
+Tried aggregator 1 time.
+LP Presolve eliminated 115 rows and 239336 columns.
+Reduced LP has 86 rows, 880 columns, and 2020 nonzeros.
+Presolve time = 0.08 sec. (65.68 ticks)
+
+Iteration log . . .
+Iteration:     1    Objective     =        850148.167757
+
+Barrier solved model.
+
+
+--- LP status (1): optimal.
+--- Cplex Time: 0.17sec (det. 202.55 ticks)
+
+
+Optimal solution found
+Objective:          141.407757
+
+--- Reading solution for model CorteMestre_RMIP
+--- Executing after solve: elapsed 0:00:01.682
+--- APS_Otimizacao.gms(772) 47 Mb
+--- Generating MIP model GeraPadrao
+--- APS_Otimizacao.gms(804) 47 Mb
+--- LOOPS* = 15000
+---       FOR/WHILE = 1
+---       j = ASHE1
+---   2 rows  16 columns  31 non-zeroes
+---   15 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 7.874E+01, 7.874E+01] - Zero values observed as well
+--- Bound     [min, max] : [ 9.000E+00, 9.000E+00] - Zero values observed as well
+--- Matrix    [min, max] : [ 2.857E-02, 1.900E+01]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:01.685
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.00 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 16 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.00 ticks)
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.01 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model GeraPadrao
+--- Executing after solve: elapsed 0:00:01.767
+--- APS_Otimizacao.gms(772) 47 Mb
+--- Generating MIP model GeraPadrao
+--- APS_Otimizacao.gms(804) 47 Mb
+--- LOOPS* = 15000
+---       FOR/WHILE = 1
+---       j = ASHE2
+---   2 rows  16 columns  31 non-zeroes
+---   15 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 7.874E+01, 7.874E+01] - Zero values observed as well
+--- Bound     [min, max] : [ 9.000E+00, 9.000E+00] - Zero values observed as well
+--- Matrix    [min, max] : [ 2.857E-02, 1.900E+01]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:01.769
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.00 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 16 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.00 ticks)
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.01 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model GeraPadrao
+--- Executing after solve: elapsed 0:00:01.837
+--- APS_Otimizacao.gms(772) 47 Mb
+--- Generating MIP model GeraPadrao
+--- APS_Otimizacao.gms(804) 47 Mb
+--- LOOPS* = 15000
+---       FOR/WHILE = 1
+---       j = ATLAS
+---   2 rows  16 columns  31 non-zeroes
+---   15 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 7.874E+01, 7.874E+01] - Zero values observed as well
+--- Bound     [min, max] : [ 1.000E+01, 1.000E+01] - Zero values observed as well
+--- Matrix    [min, max] : [ 2.857E-02, 1.900E+01]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:01.837
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- GMO memory 0.50 Mb (peak 0.50 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 0.00 Mb (peak 0.00 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Generic callback                                 0x50
+Found incumbent of value 0.000000 after 0.00 sec. (0.00 ticks)
+
+Root node processing (before b&c):
+  Real time             =    0.00 sec. (0.00 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.00 sec. (0.00 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.00sec (det. 0.00 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Simplex_Display                         2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.02
+Tried aggregator 1 time.
+LP Presolve eliminated 1 rows and 16 columns.
+All rows and columns eliminated.
+Presolve time = 0.00 sec. (0.00 ticks)
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.01 ticks)
+
+
+Proven optimal solution
+MIP Solution:            0.000000    (0 iterations, 0 nodes)
+Final Solve:             0.000000    (0 iterations)
+
+Best possible:           0.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model GeraPadrao
+--- Executing after solve: elapsed 0:00:01.934
+--- APS_Otimizacao.gms(839) 47 Mb
+--- Generating MIP model CorteMestre_Final
+--- APS_Otimizacao.gms(840) 47 Mb
+---   202 rows  240,216 columns  245,279 non-zeroes
+---   239,976 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 2.000E+00, 1.728E+03] - Zero values observed as well
+--- Bound     [min, max] : [        NA,        NA] - Zero values observed as well
+--- Matrix    [min, max] : [ 1.000E-01, 5.000E+04]
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:02.182
+
+IBM ILOG CPLEX   50.2.0 d60bb663 Jul 14, 2025          WEI x86 64bit/MS Window
+
+--- GAMS/CPLEX licensed for continuous and discrete problems.
+--- GMO setup time: 0.00s
+--- Space for names approximately 10.78 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 39.93 Mb (peak 41.76 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.2.0 link memory 4.58 Mb (peak 20.23 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.01
+Generic callback                                 0x50
+Tried aggregator 1 time.
+MIP Presolve eliminated 115 rows and 239039 columns.
+MIP Presolve modified 36 coefficients.
+Reduced MIP has 86 rows, 1177 columns, and 2614 nonzeros.
+Reduced MIP has 0 binaries, 1047 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.09 sec. (84.01 ticks)
+Found incumbent of value 4.3017269e+07 after 0.12 sec. (91.36 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 86 rows, 1177 columns, and 2614 nonzeros.
+Reduced MIP has 0 binaries, 1047 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (1.45 ticks)
+Dual steepest-edge pricing selected.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: deterministic, using up to 4 threads.
+Parallel mode: deterministic, using up to 1 threads for parallel tasks at root LP.
+Parallel mode: deterministic, using up to 3 threads for concurrent optimization:
+ * Starting dual Simplex on 1 thread...
+ * Starting Barrier on 2 threads...
+Tried aggregator 1 time.
+No LP presolve or aggregator reductions.
+Presolve time = 0.00 sec. (0.40 ticks)
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          1133.333333
+Iteration:    62   Dual objective     =         14200.000000
+Iteration:   124   Dual objective     =         14200.000000
+
+Dual simplex solved model.
+
+Root relaxation solution time = 0.00 sec. (2.34 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                       4.30173e+07        0.0000           100.00%
+Found incumbent of value 4.3017269e+07 after 0.14 sec. (104.86 ticks)
+*     0+    0                       1.24915e+07        0.0000           100.00%
+Found incumbent of value 1.2491478e+07 after 0.14 sec. (105.78 ticks)
+      0     0    14200.8503    59   1.24915e+07    14200.8503      167   99.89%
+*     0+    0                      1865111.4000    14200.8503            99.24%
+Found incumbent of value 1865111.400000 after 0.16 sec. (110.90 ticks)
+*     0+    0                        16518.0000    14200.8503            14.03%
+Found incumbent of value 16518.000000 after 0.17 sec. (114.60 ticks)
+      0     0        cutoff          16518.0000    16518.0000      229    0.00%
+Elapsed time = 0.17 sec. (114.64 ticks, tree = 0.01 MB)
+
+Mixed integer rounding cuts applied:  98
+Gomory fractional cuts applied:  52
+
+Root node processing (before b&c):
+  Real time             =    0.17 sec. (117.42 ticks)
+Parallel b&c, 4 threads:
+  Real time             =    0.00 sec. (0.00 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.17 sec. (117.42 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 0.17sec (det. 118.10 ticks)
+
+--- Returning a primal only solution to GAMS (marginals all set to NA).
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.2.0 | 2024-11-25 | 0edbb82fd
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 4
+CPXPARAM_Parallel                                1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               300
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0.01
+Parallel mode: deterministic, using up to 4 threads for concurrent optimization:
+ * Starting dual Simplex on 1 thread...
+ * Starting Barrier on 3 threads...
+Tried aggregator 1 time.
+LP Presolve eliminated 201 rows and 240216 columns.
+All rows and columns eliminated.
+Presolve time = 0.06 sec. (52.22 ticks)
+
+Dual simplex solved model.
+
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.25sec (det. 81.39 ticks)
+
+
+Proven optimal solution
+MIP Solution:        16518.000000    (229 iterations, 0 nodes)
+Final Solve:         16518.000000    (0 iterations)
+
+Best possible:       16518.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model CorteMestre_Final
+--- Executing after solve: elapsed 0:00:03.799
+--- APS_Otimizacao.gms(905) 53 Mb
+--- Putfile f_composicao_csv C:\Users\55159\source\repos\APSSystem_NOVO\f_composicao_csv.put
+--- Putfile f_plano_csv C:\Users\55159\source\repos\APSSystem_NOVO\f_plano_csv.put
+--- Putfile f_status_csv C:\Users\55159\source\repos\APSSystem_NOVO\f_status_csv.put
+*** Status: Normal completion
+--- Job APS_Otimizacao.gms Stop 08/08/25 11:23:08 elapsed 0:00:03.854

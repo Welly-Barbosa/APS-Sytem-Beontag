@@ -1,0 +1,91 @@
+B 3 C o m p i l a t i o n
+B 983 Include File Summary
+B 995 E x e c u t i o n
+I 997 "[AUDITORIA..."
+I 998 s_tempoTotalDisponivel
+I 1000 "[AUDITORIA..."
+I 1001 s_tempoTotalRequerido
+I 1003 "[INFO] Usa..."
+B 1007 Range Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
+B 1018 Model Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
+B 1038 Solution Report     SOLVE CorteMestre_RMIP Using RMIP From line 792
+B 1077 E x e c u t i o n
+I 1079 "[MONITORAM..."
+I 1080 z_custoTotal
+B 1084 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1095 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1117 Solution Report     SOLVE GeraPadrao Using MIP From line 804
+B 1166 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1177 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1199 Solution Report     SOLVE GeraPadrao Using MIP From line 804
+B 1248 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1259 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1281 Solution Report     SOLVE GeraPadrao Using MIP From line 804
+B 1330 Range Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
+B 1341 Model Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
+B 1361 Solution Report     SOLVE CorteMestre_RMIP Using RMIP From line 792
+B 1400 E x e c u t i o n
+I 1402 "[MONITORAM..."
+I 1403 z_custoTotal
+B 1407 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1418 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1440 Solution Report     SOLVE GeraPadrao Using MIP From line 804
+B 1489 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1500 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1522 Solution Report     SOLVE GeraPadrao Using MIP From line 804
+B 1571 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1582 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
+B 1604 Solution Report     SOLVE GeraPadrao Using MIP From line 804
+B 1653 E x e c u t i o n
+I 1655 "[INFO] Res..."
+B 1659 Range Statistics    SOLVE CorteMestre_Final Using MIP From line 840
+B 1670 Model Statistics    SOLVE CorteMestre_Final Using MIP From line 840
+B 1683 Solution Report     SOLVE CorteMestre_Final Using MIP From line 840
+F 1730 eq_objetivo
+F 1732 eq_atendeDemanda
+F 1802 eq_calculaAtraso
+F 1916 eq_capacidade
+F 1945 eq_preencheCapacidade
+G 1953 v_usaPadrao
+G 241934 v_excedente
+G 242004 v_diasAtraso
+G 242118 v_falta
+G 242190 z_custoTotal
+B 242200 E x e c u t i o n
+I 242202 "EXECUCAO C..."
+I 242203 z_custoTotal
+I 242205 "==========..."
+I 242207 "========= ..."
+I 242209 "==========..."
+I 242211 "[1] SUMARI..."
+I 242213 "   - Statu..."
+I 242214 CorteMestre_Final
+I 242216 "   - Statu..."
+I 242217 CorteMestre_Final
+I 242219 "   - Custo..."
+I 242220 z_custoTotal
+I 242222 "   - Numer..."
+I 242223 s_contadorPadroes
+I 242225 "[2] COMPOS..."
+I 242227 "   - Custo..."
+I 242228 s_rel_custoProducao
+I 242230 "   - Custo..."
+I 242231 s_rel_custoAtraso
+I 242233 "   - Custo..."
+I 242234 s_rel_custoExcedente
+I 242236 "   - Custo..."
+I 242237 s_rel_custoFalta
+I 242239 "[3] ATENDI..."
+I 242241 "   - Itens..."
+I 242242 v_falta
+I 242248 "   - Itens..."
+I 242249 v_excedente
+I 242303 "[4] UTILIZ..."
+I 242305 "   (Apenas..."
+I 242306 p_rel_percUtilizacao
+I 242316 "[5] PLANO ..."
+I 242318 "   (Mostra..."
+I 242319 v_usaPadrao
+I 242392 "==========..."
+I 242394 "==========..."
+I 242396 "==========..."

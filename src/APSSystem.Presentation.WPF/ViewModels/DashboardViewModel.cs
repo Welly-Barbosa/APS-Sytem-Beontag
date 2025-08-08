@@ -187,7 +187,9 @@ public class DashboardViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            StatusMessage = $"ERROR during optimization: {ex.Message}";
+            // --- ALTERAÇÃO AQUI ---
+            // Exibe a mensagem de erro completa (que agora conterá o log do GAMS) em uma caixa de diálogo
+            StatusMessage = "ERROR during optimization: See dialog for details.";
             MessageBox.Show(ex.Message, "Optimization Failed", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         finally

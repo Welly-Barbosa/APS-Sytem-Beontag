@@ -1,0 +1,9 @@
+Implementar a Lógica de Código Numérico: O bloco de geração de relatório irá atribuir os seguintes valores numéricos ao s_status_code, que o seu sistema C# poderá então interpretar:
+
+-1: Não Atendido
+
+0: No Prazo
+
+1: Atrasado
+
+2: Adiantado
