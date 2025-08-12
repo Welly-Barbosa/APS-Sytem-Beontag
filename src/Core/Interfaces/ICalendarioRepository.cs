@@ -14,4 +14,5 @@ public interface ICalendarioRepository
     /// <param name="id">O ID do calendário a ser buscado.</param>
     /// <returns>A entidade Calendario ou nulo se não for encontrada.</returns>
     Task<Calendario?> GetByIdAsync(string id);
+    Task<IEnumerable<Calendario>> GetAllAsync();
 }

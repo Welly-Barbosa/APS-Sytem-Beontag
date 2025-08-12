@@ -1,10 +1,11 @@
 ﻿using APSSystem.Application.Interfaces;
+using APSSystem.Core.DTOs;
 using APSSystem.Core.Entities;
 using APSSystem.Core.Interfaces;
 using APSSystem.Core.Services;
 using APSSystem.Core.ValueObjects;
 using MediatR;
-using Microsoft.Extensions.Configuration; // Adicionar este using
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace APSSystem.Application.UseCases.IniciarOtimizacao;
 
+/// <summary>
+/// Orquestra o ciclo completo de pré-processamento e execução da otimização GAMS.
+/// </summary>
 public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacaoCommand, GamsExecutionResult>
 {
     private readonly IGamsExecutionService _gamsService;
@@ -22,6 +26,7 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
     private readonly IOrdemClienteRepository _ordemRepo;
     private readonly IItemDeInventarioRepository _inventarioRepo;
     private readonly AlocacaoInventarioService _alocacaoService;
+    private readonly IDataValidationService _validationService;
     private readonly IConfiguration _configuration;
 
     public IniciarOtimizacaoCommandHandler(
@@ -32,6 +37,7 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
         IOrdemClienteRepository ordemRepo,
         IItemDeInventarioRepository inventarioRepo,
         AlocacaoInventarioService alocacaoService,
+        IDataValidationService validationService,
         IConfiguration configuration)
     {
         _gamsService = gamsService;
@@ -41,18 +47,16 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
         _ordemRepo = ordemRepo;
         _inventarioRepo = inventarioRepo;
         _alocacaoService = alocacaoService;
+        _validationService = validationService;
         _configuration = configuration;
     }
 
     public async Task<GamsExecutionResult> Handle(IniciarOtimizacaoCommand request, CancellationToken cancellationToken)
     {
-        // Passo 1: Definir o cenário para que os repositórios leiam os arquivos corretos
         _scenarioService.DefinirCenario(request.Cenario);
 
-        // Passo 2: Coletar e processar todos os dados para o GAMS
         var dadosParaGams = await PrepararDadosDeEntrada(request.DataInicio, request.DataFim);
 
-        // Passo 3: Ler configurações e chamar o serviço de execução do GAMS
         var gamsModelPath = _configuration.GetValue<string>("GamsSettings:ModelSourcePath");
         var timeoutMinutes = _configuration.GetValue<int>("GamsSettings:TimeoutMinutes");
 
@@ -66,31 +70,60 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
 
         if (!resultadoExecucao.Sucesso)
         {
-            // Se a execução do GAMS falhou, lança uma exceção para a UI capturar e exibir
             throw new InvalidOperationException($"A execução do GAMS falhou: {resultadoExecucao.MensagemErro}");
         }
 
-        // Passo 4 (Futuro): Disparar o comando de pós-processamento
-        // await _mediator.Send(new ProcessarResultadoGamsCommand(resultadoExecucao.CaminhoPastaJob), cancellationToken);
-
-        Console.WriteLine($"Execução do GAMS concluída com sucesso. Resultados estão em: {resultadoExecucao.CaminhoPastaJob}");
-        
         return resultadoExecucao;
     }
 
-
     /// <summary>
-    /// Reutiliza a mesma lógica do nosso pré-processador de dashboard para coletar e agregar dados.
+    /// Orquestra as etapas de Extração, Validação e Transformação dos dados.
     /// </summary>
     private async Task<GamsInputData> PrepararDadosDeEntrada(DateOnly dataInicio, DateOnly dataFim)
     {
-        // 1. Calcular Demanda Líquida Agregada
-        var todasAsOrdens = await _ordemRepo.GetAllAsync();
+        // --- ETAPA 1: EXTRAÇÃO ---
+        var recursos = (await _recursoRepo.GetAllAsync()).ToList();
+        var calendarios = (await _calendarioRepo.GetAllAsync()).ToList();
+        var todasAsOrdens = (await _ordemRepo.GetAllAsync()).ToList();
+
+        // --- ETAPA 2: VALIDAÇÃO ---
+        var validationResult = _validationService.ValidateResourcesAndCalendars(recursos, calendarios);
+        if (!validationResult.IsValid)
+        {
+            throw new InvalidOperationException($"Falha na validação dos dados: {validationResult.ErrorMessage}");
+        }
+
+        // --- ETAPA 3: TRANSFORMAÇÃO ---
+
+        // 3a. Identifica as datas relevantes
+        var datasRelevantes = new HashSet<DateOnly>();
+        var datasDasOrdens = todasAsOrdens.Select(o => DateOnly.FromDateTime(o.DataEntrega)).Where(d => d >= dataInicio && d <= dataFim);
+        foreach (var data in datasDasOrdens) { datasRelevantes.Add(data); }
+
+        for (var data = dataInicio; data <= dataFim; data = data.AddDays(1))
+        {
+            if (recursos.Any(r => (calendarios.FirstOrDefault(c => c.Id == r.CalendarioId)?.CalcularHorasDisponiveis(data) ?? 0) > 0))
+            {
+                datasRelevantes.Add(data);
+            }
+        }
+        var listaDeDatasOrdenada = datasRelevantes.OrderBy(d => d).ToList();
+
+        // 3b. Calcula a capacidade apenas para as datas relevantes
+        var minutosDisponiveisCalculado = new Dictionary<(string RecursoId, DateOnly Data), decimal>();
+        foreach (var data in listaDeDatasOrdenada)
+        {
+            foreach (var recurso in recursos)
+            {
+                var calendario = calendarios.First(c => c.Id == recurso.CalendarioId);
+                minutosDisponiveisCalculado.Add((recurso.Id, data), calendario.CalcularHorasDisponiveis(data) * 60);
+            }
+        }
+
+        // 3c. Calcula a demanda líquida agregada
         var ordensFiltradas = todasAsOrdens
-            .Where(o =>
-                (o.ItemRequisitado.Comprimento == 10000 || o.ItemRequisitado.Comprimento == 15000) &&
-                DateOnly.FromDateTime(o.DataEntrega) >= dataInicio &&
-                DateOnly.FromDateTime(o.DataEntrega) <= dataFim)
+            .Where(o => (o.ItemRequisitado.Comprimento == 10000 || o.ItemRequisitado.Comprimento == 15000) &&
+                        datasRelevantes.Contains(DateOnly.FromDateTime(o.DataEntrega)))
             .ToList();
 
         var necessidadesIndividuais = new List<NecessidadeDeProducao>();
@@ -101,13 +134,8 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
 
             if (resultadoAlocacao.NecessidadeLiquidaFinal > 0)
             {
-                var partNumberEfetivo = new PartNumber(
-                    ordem.ItemRequisitado.PN_Generico,
-                    ordem.LarguraCorte,
-                    ordem.ItemRequisitado.Comprimento
-                );
-                necessidadesIndividuais.Add(new NecessidadeDeProducao(
-                    ordem.NumeroOrdem, partNumberEfetivo, ordem.DataEntrega, resultadoAlocacao.NecessidadeLiquidaFinal));
+                var partNumberEfetivo = new PartNumber(ordem.ItemRequisitado.PN_Generico, ordem.LarguraCorte, ordem.ItemRequisitado.Comprimento);
+                necessidadesIndividuais.Add(new NecessidadeDeProducao(ordem.NumeroOrdem, partNumberEfetivo, ordem.DataEntrega, resultadoAlocacao.NecessidadeLiquidaFinal));
             }
         }
 
@@ -115,22 +143,7 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
             .GroupBy(n => new { n.PartNumber, n.DataEntrega })
             .ToDictionary(g => (g.Key.PartNumber, g.Key.DataEntrega), g => g.Sum(n => n.QuantidadeLiquida));
 
-        // 2. Calcular Capacidade dos Recursos
-        var recursos = await _recursoRepo.GetAllAsync();
-        var minutosDisponiveisCalculado = new Dictionary<(string RecursoId, DateOnly Data), decimal>();
-        foreach (var recurso in recursos)
-        {
-            var calendario = await _calendarioRepo.GetByIdAsync(recurso.CalendarioId);
-            if (calendario != null)
-            {
-                for (var data = dataInicio; data <= dataFim; data = data.AddDays(1))
-                {
-                    minutosDisponiveisCalculado.Add((recurso.Id, data), calendario.CalcularHorasDisponiveis(data) * 60);
-                }
-            }
-        }
-
-        // 3. Empacotar no DTO
+        // --- ETAPA 4: EMPACOTAR DADOS TRANSFORMADOS ---
         return new GamsInputData
         {
             Recursos = recursos,

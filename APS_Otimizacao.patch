@@ -1,0 +1,132 @@
+--- a/APS_Otimizacao.gms
++++ b/APS_Otimizacao.gms
+@@ -38,25 +38,28 @@
+ * 1.1 Inclusao do arquivo de dados
+ * ------------------------------------------------------------------------------
+ * O modelo espera que TODOS os conjuntos e parametros de entrada
+ * sejam fornecidos por este unico arquivo .dat.
+ $INCLUDE 'GamsInputData.dat'
+ 
+ * ------------------------------------------------------------------------------
+ * 1.2 Declaracao de Conjuntos Dinamicos e Auxiliares
+ * ------------------------------------------------------------------------------
+ Sets
+     pt                    'Padroes de corte (gerados dinamicamente)' /pt0001*pt9999/
+     c_unicos(c)           'Comprimentos unicos presentes nos produtos (gerado dinamicamente)'
+-    p_c(p_base, w, c)     'Filtro de produtos por comprimento para o loop principal';
++    p_c(p_base, w, c)     'Filtro de produtos por comprimento para o loop principal'
++    pt_on(pt)              'Padroes ativos no mestre (gerados no CG)'
++;
++pt_on(pt) = no;
+ 
+ * --- Cria um alias para o conjunto de tempo, necessario para o calculo de atraso
+ Alias (t,t2,t_prod)
+ * --- NOVO ALIAS NECESSARIO PARA O LOOP DO RELATORIO ---
+ Alias(t, t_demand_loop);
+@@ -245,27 +248,27 @@
+     + s_pesoCustoAtraso   * sum((p,t), p_custoAtraso(p,t) * v_diasAtraso(p,t))
+     + s_pesoCustoExcedente* sum(p, v_excedente(p))
+     + s_pesoCustoFalta    * sum(p, v_falta(p));
+     
+     
+ * A producao total de um produto deve atender a demanda total (soma de todos os dias).
+-eq_atendeDemanda(p)..
+-    sum((pt,j,t), p_rendimentoPadrao(pt, p) * v_usaPadrao(pt,j,t)) + v_falta(p)
+-    =e= sum(t, p_demanda(p, t)) + v_excedente(p);
++eq_atendeDemanda(p_base, w, c)..
++    sum((pt,j,t)$pt_on(pt), p_rendimentoPadrao(pt, p_base, w, c) * v_usaPadrao(pt,j,t)) + v_falta(p_base, w, c)
++    =e= sum(t, sum(p$p(p_base,w,c), p_demanda(p, t))) + v_excedente(p_base, w, c);
+ 
+...
+@@
+ Variables z_valorPadrao, v_geraCorte(p_base, w, c);
+ Binary Variable v_geraCorte;
+ 
+ Equations eq_sub_capacity, eq_sub_objetivo;
+ 
+-eq_sub_capacity..  sum(p, p_larguraProduto(p) * v_geraCorte(p)) =l= s_larguraMae;
+-
+-eq_sub_objetivo..  z_valorPadrao =e= sum(p, p_precoDual(p) * v_geraCorte(p));
++eq_sub_capacity..  sum((p_base,w,c)$p(p_base,w,c), p_larguraProduto(p_base, w, c) * v_geraCorte(p_base, w, c)) =l= s_larguraMae;
++
++eq_sub_objetivo..  z_valorPadrao =e= sum((p_base,w,c)$p(p_base,w,c), p_precoDual(p_base, w, c) * v_geraCorte(p_base, w, c));
+ 
+ Model GeraPadrao /eq_sub_capacity, eq_sub_objetivo/;
++v_geraCorte.lo(p_base, w, c) = 0;
++v_geraCorte.up(p_base, w, c) = floor(s_larguraMae / p_larguraProduto(p_base, w, c));
+@@
+-        v_geraCorte.up(p) = 1;
++        * v_geraCorte.up by produto is set globally;
+@@
+-        p_candidato(p) = round(v_geraCorte.l(p));
+-        if( (z_valorPadrao.l > (1 + s_epsPreco)) and (sum(p$p_c(p), abs(p_candidato(p) - p_lastPadrao(p))) > 0),
+-            s_podeMelhorar  = 1;
+-            s_contadorPadroes = s_contadorPadroes + 1;
+-            p_rendimentoPadrao(pt, p)$(ord(pt) = s_contadorPadroes and p_c(p)) = p_candidato(p);
+-            p_numCortes(pt)$(ord(pt) = s_contadorPadroes) = sum(p$p_c(p), p_rendimentoPadrao(pt, p));
+-            p_lastPadrao(p) = p_candidato(p);
++        p_candidato(p_base,w,c) = round(v_geraCorte.l(p_base, w, c));
++        if( (z_valorPadrao.l > (1 + s_epsPreco)) and (sum((p_base,w,c)$p_hasDemand(p_base,w,c), abs(p_candidato(p_base,w,c) - p_lastPadrao(p_base,w,c))) > 0),
++            s_podeMelhorar  = 1;
++            s_contadorPadroes = s_contadorPadroes + 1;
++            p_rendimentoPadrao(pt, p_base, w, c)$(ord(pt) = s_contadorPadroes and p_hasDemand(p_base,w,c)) = p_candidato(p_base,w,c);
++            pt_on(pt)$(ord(pt) = s_contadorPadroes) = yes;
++            p_numCortes(pt)$(ord(pt) = s_contadorPadroes) = sum((p_base,w,c)$p_hasDemand(p_base,w,c), p_rendimentoPadrao(pt, p_base, w, c));
++            p_lastPadrao(p_base,w,c) = p_candidato(p_base,w,c);
+         );
+@@
+-* Preparacao segura de p_c (parametro 0/1) ---
+-* Se p_c ainda nao estiver preenchido nesta fase, derive a partir da demanda
+-* (evita erro 66 no subproblema: simbolo p_c sem valores)
+-*p_c como parametro 0/1:
+-p_c(p) = 0;
+-p_c(p)$(sum(t, p_demanda(p,t)) > 0) = 1;
++Parameter p_hasDemand(p_base,w,c);
++p_hasDemand(p_base,w,c) = 0;
++p_hasDemand(p_base,w,c)$( sum(t, sum(p$p(p_base,w,c), p_demanda(p,t))) > 0 ) = 1;
+@@
+ * 5. FASE 5.2: Relatorios CSV + Mapeamento Producao→Ordens
+ * ------------------------------------------------------------------------------
+ 
+ * 5.2.1 Composicao dos padroes
+ put f_composicao_csv 'PadraoCorte,PN_Base,LarguraProduto,CompProduto,QtdPorBobinaMae' /;
+-loop((pt,p,p_base,w,c)$ (p(p_base,w,c) and p_rendimentoPadrao(pt,p) > 0),
+-    put f_composicao_csv pt.tl, ',', p_base.tl, ',', w.tl, ',', c.tl, ',';
+-    put f_composicao_csv p_rendimentoPadrao(pt,p):0:2 /;
++loop((pt,p_base,w,c)$(p_rendimentoPadrao(pt,p_base,w,c) > 0),
++    put f_composicao_csv pt.tl, ',', p_base.tl, ',';
++    put f_composicao_csv p_larguraProduto(p_base,w,c):0:4, ',', p_comprimentoProduto(p_base,w,c):0:0, ',';
++    put f_composicao_csv p_rendimentoPadrao(pt,p_base,w,c):0:2 /;
+ );
+ putclose f_composicao_csv;
+@@
+ * Demanda agregada por tuple (p_base,w,c,t)
+ p_demandaPwct(p_base,w,c,t) = sum(p$p(p_base,w,c), p_demanda(p,t));
+ 
+ * Producao por data a partir das decisoes (usa mapeamento p(p_base,w,c))
+-p_prodPorData(p_base,w,c,t) = sum((pt,j,p)$p(p_base,w,c), p_rendimentoPadrao(pt,p) * v_usaPadrao.l(pt,j,t));
++p_prodPorData(p_base,w,c,t) = sum((pt,j), p_rendimentoPadrao(pt,p_base,w,c) * v_usaPadrao.l(pt,j,t));
+ 
+ * Acumulados por data
+ p_cumProd(p_base,w,c,t) = sum(t2$(ord(t2) <= ord(t)), p_prodPorData(p_base,w,c,t2));
+ p_cumDem(p_base,w,c,t) = sum(t2$(ord(t2) <= ord(t)), p_demandaPwct(p_base,w,c,t2));
+@@
+-    put f_status_csv p_demandaPwct(p_base,w,c,t):0:2, ',';
++    put f_status_csv p_demandaPwct(p_base,w,c,t):0:2, ',';
+ 
+     s_rel_status_code = -1;
+     s_rel_dias_desvio = 0;
+ 
+     if(p_dataAtende_ord(p_base,w,c,t) > 0,
+         loop(t_prod$(ord(t_prod) = p_dataAtende_ord(p_base,w,c,t)),
+             put f_status_csv t_prod.tl;
+             s_rel_dias_desvio = ord(t_prod) - ord(t);
+             s_rel_status_code = 0$(s_rel_dias_desvio <= 0) + 1$(s_rel_dias_desvio > 0);
+         );
+     );
+     put f_status_csv ',', s_rel_dias_desvio:0:0, ',', s_rel_status_code:0:0 /;
+ );
+ putclose f_status_csv;
+@@
+-p_precoDual(p) = eq_atendeDemanda.m(p);
++p_precoDual(p_base, w, c) = eq_atendeDemanda.m(p_base, w, c);

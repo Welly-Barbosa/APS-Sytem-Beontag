@@ -14,7 +14,7 @@ public class InMemoryCalendarioRepository : ICalendarioRepository
 
     public InMemoryCalendarioRepository()
     {
-        // --- Calendário 1: O calendário padrão 5x8 que já tínhamos ---
+        // Calendário 1: 5x8
         var cal5x8 = new Calendario("CAL-PADRAO-5x8", "Calendário Padrão 5x8 (Seg-Sex, 08:00-12:00 e 13:00-17:00)");
         var dias5x8 = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
         foreach (var dia in dias5x8)
@@ -24,17 +24,14 @@ public class InMemoryCalendarioRepository : ICalendarioRepository
         }
         _calendarios.Add(cal5x8);
 
-
-        // --- Calendário 2: O novo calendário de 3 turnos (24x5) ---
+        // Calendário 2: 24x5
         var cal24x5 = new Calendario("CAL-24x5", "Calendário de Produção Contínua (3 Turnos, Seg-Sex)");
         var dias24x5 = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
-
         foreach (var dia in dias24x5)
         {
-            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(6, 0), new TimeOnly(14, 0)));  // Turno 1 (8h)
-            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(14, 0), new TimeOnly(22, 0))); // Turno 2 (8h)
-            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(22, 0), new TimeOnly(23, 59, 59))); // Parte final do Turno 3
-            // Para simplificar, estamos considerando 22h de trabalho por dia.
+            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(6, 0), new TimeOnly(14, 0)));
+            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(14, 0), new TimeOnly(22, 0)));
+            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(22, 0), new TimeOnly(23, 59, 59)));
         }
         _calendarios.Add(cal24x5);
     }
@@ -42,5 +39,11 @@ public class InMemoryCalendarioRepository : ICalendarioRepository
     public Task<Calendario?> GetByIdAsync(string id)
     {
         return Task.FromResult(_calendarios.FirstOrDefault(c => c.Id.Equals(id, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    // --- NOVO MÉTODO ADICIONADO AQUI ---
+    public Task<IEnumerable<Calendario>> GetAllAsync()
+    {
+        return Task.FromResult(_calendarios.AsEnumerable());
     }
 }

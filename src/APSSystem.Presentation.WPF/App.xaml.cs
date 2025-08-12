@@ -52,6 +52,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IExcelDataService, ExcelDataService>();
         services.AddSingleton<IGamsFileWriter, GamsFileWriter>();
         services.AddSingleton<IGamsExecutionService, GamsExecutionService>();
+        services.AddTransient<IGamsOutputParser, GamsOutputParser>();
         services.AddTransient<AlocacaoInventarioService>();
         services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
         services.AddTransient<ICalculadoraDePerdaService, CalculadoraDePerdaService>();
