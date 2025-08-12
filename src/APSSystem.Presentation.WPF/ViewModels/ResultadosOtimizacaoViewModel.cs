@@ -1,10 +1,8 @@
 ﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using LiveChartsCore;
-using LiveChartsCore.Defaults;
+using LiveChartsCore.Defaults; // <-- DIRETIVA 'using' CRÍTICA QUE FALTAVA (para GanttTask)
 using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
-using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,7 +36,7 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
     {
         _mediator = mediator;
         // Configuração inicial dos eixos do Gantt
-        YAxesGantt = new Axis[] { new Axis { IsVisible = false } }; // O eixo Y é apenas para espaçamento
+        YAxesGantt = new Axis[] { new Axis { IsVisible = true, Labels = new List<string>() } };
         XAxesGantt = new Axis[]
         {
             new Axis
@@ -58,7 +56,6 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
             var command = new AnalisarResultadoGamsCommand(caminhoPastaJob);
             var resultado = await _mediator.Send(command);
 
-            // Prepara os dados para o Gráfico de Gantt
             var ganttSeries = new List<ISeries>();
             var maquinas = resultado.PlanoProducao.Select(p => p.Maquina).Distinct().ToList();
 
@@ -75,8 +72,8 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
                 });
             }
 
-            // Atualiza a UI na thread correta
-            Application.Current.Dispatcher.Invoke(() =>
+            // Usando o nome completo para evitar ambiguidade
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 PlanoCliente.Clear();
                 resultado.PlanoCliente.ForEach(item => PlanoCliente.Add(item));
@@ -87,7 +84,6 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
                 SeriesGantt.Clear();
                 ganttSeries.ForEach(s => SeriesGantt.Add(s));
 
-                // Atualiza os labels do eixo Y para serem os nomes das máquinas
                 YAxesGantt[0].Labels = maquinas;
             });
 
