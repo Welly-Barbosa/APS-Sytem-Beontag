@@ -1,5 +1,6 @@
 ﻿using APSSystem.Application.Interfaces;
 using APSSystem.Core.Interfaces;
+using APSSystem.Core.Services;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,27 +13,24 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
 {
     private readonly IGamsOutputParser _gamsParser;
     private readonly IOrdemClienteRepository _ordemClienteRepo;
+    private readonly ICalculadoraDePerdaService _calculadoraDePerda;
 
-    public AnalisarResultadoGamsCommandHandler(IGamsOutputParser gamsParser, IOrdemClienteRepository ordemClienteRepo)
+    public AnalisarResultadoGamsCommandHandler(IGamsOutputParser gamsParser, IOrdemClienteRepository ordemClienteRepo, ICalculadoraDePerdaService calculadoraDePerda)
     {
         _gamsParser = gamsParser;
         _ordemClienteRepo = ordemClienteRepo;
+        _calculadoraDePerda = calculadoraDePerda;
     }
 
     public async Task<ResultadoGamsAnalisado> Handle(AnalisarResultadoGamsCommand request, CancellationToken cancellationToken)
     {
-        // 1. Usa o parser para ler os dados brutos dos arquivos de resultado
         var dadosGams = await _gamsParser.ParseAsync(request.CaminhoPastaJob);
-
-        // 2. Busca todas as ordens de cliente originais para fazer a junção
         var ordensOriginais = (await _ordemClienteRepo.GetAllAsync()).ToList();
+        var perdaPorPadrao = _calculadoraDePerda.CalcularPerdaPorPadrao(dadosGams.PlanoDeProducao, dadosGams.ComposicaoDosPadroes);
 
-        var planoDetalhado = new List<ItemDePlanoDetalhado>();
-
-        // 3. Processa cada linha de status, conectando-a à ordem original
+        var planoClienteDetalhado = new List<ItemDePlanoDetalhado>();
         foreach (var status in dadosGams.StatusDasEntregas)
         {
-            // Encontra a(s) ordem(ns) de cliente original que corresponde(m) a esta demanda
             var ordensCorrespondentes = ordensOriginais.Where(o =>
                 o.ItemRequisitado.PN_Generico == status.PN_Base &&
                 o.ItemRequisitado.Largura == status.LarguraProduto &&
@@ -40,34 +38,53 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
                 o.DataEntrega.Date == status.DataEntregaRequerida.Date
             ).ToList();
 
-            // Para cada ordem original, cria um item de plano detalhado
             foreach (var ordem in ordensCorrespondentes)
             {
-                planoDetalhado.Add(new ItemDePlanoDetalhado(
-                    NumeroOrdemCliente: ordem.NumeroOrdem, // A RASTREABILIDADE ACONTECE AQUI!
-                    PN_Base: status.PN_Base,
-                    LarguraProduto: status.LarguraProduto,
-                    CompProduto: status.CompProduto,
-                    DataEntregaRequerida: status.DataEntregaRequerida,
-                    QtdDemandada: ordem.Quantidade, // Pega a quantidade original da ordem
-                    DataProducaoReal: status.DataProducaoReal,
-                    DiasDesvio: status.DiasDesvio,
-                    StatusEntrega: TraduzirStatus(status.StatusEntrega)
+                planoClienteDetalhado.Add(new ItemDePlanoDetalhado(
+                    ordem.NumeroOrdem,
+                    status.PN_Base,
+                    status.LarguraProduto,
+                    status.CompProduto,
+                    status.DataEntregaRequerida,
+                    ordem.Quantidade,
+                    status.DataProducaoReal,
+                    status.DiasDesvio,
+                    TraduzirStatus(status.StatusEntrega)
                 ));
             }
         }
 
-        // A lógica de KPIs e da tabela de produção será adicionada aqui em breve
-        return new ResultadoGamsAnalisado { PlanoDetalhado = planoDetalhado.OrderBy(p => p.DataEntregaRequerida).ToList() };
-    }
+        var planoProducao = (from plano in dadosGams.PlanoDeProducao
+                             join comp in dadosGams.ComposicaoDosPadroes on plano.PadraoCorte equals comp.PadraoCorte into comps
+                             let composicaoFormatada = string.Join(", ", comps.Select(c => $"{c.QtdPorBobinaMae}x {c.PN_Base}-{c.LarguraProduto}"))
+                             select new ItemOrdemProducao(
+                                 plano.DataProducao,
+                                 plano.Maquina,
+                                 plano.PadraoCorte,
+                                 plano.QtdBobinasMae,
+                                 composicaoFormatada,
+                                 perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
+                             )).ToList();
 
-    private string TraduzirStatus(int statusGams)
-    {
-        return statusGams switch
+        var totalOrdens = planoClienteDetalhado.Count;
+        var ordensNoPrazo = planoClienteDetalhado.Count(p => p.StatusEntrega == "On Time");
+        var fulfillment = totalOrdens > 0 ? (decimal)ordensNoPrazo / totalOrdens : 0;
+        var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
+
+        return new ResultadoGamsAnalisado
         {
-            0 => "On Time",
-            -1 => "Late / Not Planned",
-            _ => "Unknown"
+            // CORREÇÃO: Usando o nome correto da propriedade: PlanoCliente
+            PlanoCliente = planoClienteDetalhado.OrderBy(p => p.DataEntregaRequerida).ToList(),
+            PlanoProducao = planoProducao,
+            OrderFulfillmentPercentage = fulfillment * 100,
+            AverageWastePercentage = perdaMedia * 100,
         };
     }
+
+    private string TraduzirStatus(int statusGams) => statusGams switch
+    {
+        0 => "On Time",
+        -1 => "Late / Not Planned",
+        _ => "Unknown"
+    };
 }
