@@ -53,16 +53,20 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
 
     public async Task<GamsExecutionResult> Handle(IniciarOtimizacaoCommand request, CancellationToken cancellationToken)
     {
+        // Define o cenário para que os repositórios leiam os arquivos corretos
         _scenarioService.DefinirCenario(request.Cenario);
 
+        // Executa a pipeline de pré-processamento
         var dadosParaGams = await PrepararDadosDeEntrada(request.DataInicio, request.DataFim);
 
+        // Lê as configurações para a execução
         var gamsModelPath = _configuration.GetValue<string>("GamsSettings:ModelSourcePath");
         var timeoutMinutes = _configuration.GetValue<int>("GamsSettings:TimeoutMinutes");
 
         if (string.IsNullOrEmpty(gamsModelPath))
             throw new InvalidOperationException("Caminho do modelo GAMS (.gms) não configurado no appsettings.json.");
 
+        // ETAPA FINAL: CARGA (Execução do GAMS)
         var resultadoExecucao = await _gamsService.ExecutarAsync(
             gamsModelPath,
             dadosParaGams,
@@ -70,6 +74,7 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
 
         if (!resultadoExecucao.Sucesso)
         {
+            // Se a execução do GAMS falhou, lança uma exceção para a UI capturar e exibir
             throw new InvalidOperationException($"A execução do GAMS falhou: {resultadoExecucao.MensagemErro}");
         }
 
@@ -90,12 +95,13 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
         var validationResult = _validationService.ValidateResourcesAndCalendars(recursos, calendarios);
         if (!validationResult.IsValid)
         {
-            throw new InvalidOperationException($"Falha na validação dos dados: {validationResult.ErrorMessage}");
+            // Falha rápido com uma mensagem de erro clara se os dados estiverem inconsistentes
+            throw new InvalidOperationException($"Falha na validação dos dados de entrada: {validationResult.ErrorMessage}");
         }
 
         // --- ETAPA 3: TRANSFORMAÇÃO ---
 
-        // 3a. Identifica as datas relevantes
+        // 3a. Identifica as datas relevantes (lógica "esparsa")
         var datasRelevantes = new HashSet<DateOnly>();
         var datasDasOrdens = todasAsOrdens.Select(o => DateOnly.FromDateTime(o.DataEntrega)).Where(d => d >= dataInicio && d <= dataFim);
         foreach (var data in datasDasOrdens) { datasRelevantes.Add(data); }
@@ -115,7 +121,7 @@ public class IniciarOtimizacaoCommandHandler : IRequestHandler<IniciarOtimizacao
         {
             foreach (var recurso in recursos)
             {
-                var calendario = calendarios.First(c => c.Id == recurso.CalendarioId);
+                var calendario = calendarios.First(c => c.Id == recurso.CalendarioId); // Busca segura, pois já validamos
                 minutosDisponiveisCalculado.Add((recurso.Id, data), calendario.CalcularHorasDisponiveis(data) * 60);
             }
         }

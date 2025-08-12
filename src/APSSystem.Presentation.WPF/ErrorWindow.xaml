@@ -1,0 +1,23 @@
+﻿<Window x:Class="APSSystem.Presentation.WPF.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Optimization Error" Height="450" Width="800"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        WindowStyle="ToolWindow">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="An error occurred during the operation:" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"
+                   Foreground="#B00020"/>
+
+        <TextBox Grid.Row="1" Text="{Binding Mode=OneWay}" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+         FontFamily="Consolas" TextWrapping="NoWrap" BorderBrush="LightGray" Padding="5"/>
+
+        <Button Grid.Row="2" Content="OK" IsDefault="True" Click="OkButton_Click" 
+                HorizontalAlignment="Right" MinWidth="100" Margin="0,15,0,0" Padding="10,5"/>
+    </Grid>
+</Window>

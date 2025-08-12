@@ -147,7 +147,7 @@ public class DashboardViewModel : ViewModelBase
         {
             StatusMessage = $"ERROR: See dialog for details.";
             var errorDialog = new ErrorWindow(ex.Message);
-            errorDialog.ShowDialog();
+            //errorDialog.ShowDialog();
         }
         finally { IsIdle = true; }
     }

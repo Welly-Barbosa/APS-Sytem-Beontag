@@ -1,6 +1,5 @@
 ﻿using APSSystem.Application.Interfaces;
 using APSSystem.Core.Interfaces;
-using APSSystem.Core.Services;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +11,12 @@ namespace APSSystem.Application.UseCases.AnalisarResultadoGams;
 public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResultadoGamsCommand, ResultadoGamsAnalisado>
 {
     private readonly IGamsOutputParser _gamsParser;
-    private readonly ICalculadoraDePerdaService _calculadoraDePerda;
+    private readonly IOrdemClienteRepository _ordemClienteRepo;
 
-    public AnalisarResultadoGamsCommandHandler(IGamsOutputParser gamsParser, ICalculadoraDePerdaService calculadoraDePerda)
+    public AnalisarResultadoGamsCommandHandler(IGamsOutputParser gamsParser, IOrdemClienteRepository ordemClienteRepo)
     {
         _gamsParser = gamsParser;
-        _calculadoraDePerda = calculadoraDePerda;
+        _ordemClienteRepo = ordemClienteRepo;
     }
 
     public async Task<ResultadoGamsAnalisado> Handle(AnalisarResultadoGamsCommand request, CancellationToken cancellationToken)
@@ -25,58 +24,50 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
         // 1. Usa o parser para ler os dados brutos dos arquivos de resultado
         var dadosGams = await _gamsParser.ParseAsync(request.CaminhoPastaJob);
 
-        // 2. Implementa a nova lógica: Calcular os KPIs globais
-        var perdaPorPadrao = _calculadoraDePerda.CalcularPerdaPorPadrao(dadosGams.PlanoDeProducao, dadosGams.ComposicaoDosPadroes);
+        // 2. Busca todas as ordens de cliente originais para fazer a junção
+        var ordensOriginais = (await _ordemClienteRepo.GetAllAsync()).ToList();
 
-        // 3. Monta a lista de Ordens de Produção para a tabela, juntando com a composição e a perda
-        var planoProducao = (from plano in dadosGams.PlanoDeProducao
-                             join comp in dadosGams.ComposicaoDosPadroes on plano.PadraoCorte equals comp.PadraoCorte into comps
-                             let composicaoFormatada = string.Join(", ", comps.Select(c => $"{c.QtdPorBobinaMae}x {c.PN_Base}-{c.LarguraProduto}"))
-                             select new ItemOrdemProducao(
-                                 plano.DataProducao,
-                                 plano.Maquina,
-                                 plano.PadraoCorte,
-                                 plano.QtdBobinasMae,
-                                 composicaoFormatada,
-                                 perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
-                             )).ToList();
+        var planoDetalhado = new List<ItemDePlanoDetalhado>();
 
-        // 4. Monta a lista de status de Ordens de Cliente para a outra tabela
-        var planoCliente = dadosGams.StatusDasEntregas
-            .Select(status => new ItemDePlanoDetalhado(
-                "N/A", // O NumeroOrdem original precisaria ser buscado do IOrdemClienteRepository
-                status.PN_Base,
-                status.LarguraProduto,
-                status.CompProduto,
-                status.DataEntregaRequerida,
-                status.QtdDemandada,
-                status.DataProducaoReal,
-                status.DiasDesvio,
-                TraduzirStatus(status.StatusEntrega)
-            ))
-            .OrderBy(p => p.DataEntregaRequerida)
-            .ToList();
-
-        // 5. Calcula os KPIs de alto nível
-        var totalOrdens = planoCliente.Count;
-        var ordensNoPrazo = planoCliente.Count(p => p.StatusEntrega == "On Time");
-        var fulfillment = totalOrdens > 0 ? (decimal)ordensNoPrazo / totalOrdens : 0;
-        var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
-
-        return new ResultadoGamsAnalisado
+        // 3. Processa cada linha de status, conectando-a à ordem original
+        foreach (var status in dadosGams.StatusDasEntregas)
         {
-            PlanoCliente = planoCliente,
-            PlanoProducao = planoProducao,
-            OrderFulfillmentPercentage = fulfillment * 100, // em percentual
-            AverageWastePercentage = perdaMedia * 100, // em percentual
-            // O cálculo de Perda em Polegadas precisaria de mais detalhes, omitido por enquanto
-        };
+            // Encontra a(s) ordem(ns) de cliente original que corresponde(m) a esta demanda
+            var ordensCorrespondentes = ordensOriginais.Where(o =>
+                o.ItemRequisitado.PN_Generico == status.PN_Base &&
+                o.ItemRequisitado.Largura == status.LarguraProduto &&
+                o.ItemRequisitado.Comprimento == status.CompProduto &&
+                o.DataEntrega.Date == status.DataEntregaRequerida.Date
+            ).ToList();
+
+            // Para cada ordem original, cria um item de plano detalhado
+            foreach (var ordem in ordensCorrespondentes)
+            {
+                planoDetalhado.Add(new ItemDePlanoDetalhado(
+                    NumeroOrdemCliente: ordem.NumeroOrdem, // A RASTREABILIDADE ACONTECE AQUI!
+                    PN_Base: status.PN_Base,
+                    LarguraProduto: status.LarguraProduto,
+                    CompProduto: status.CompProduto,
+                    DataEntregaRequerida: status.DataEntregaRequerida,
+                    QtdDemandada: ordem.Quantidade, // Pega a quantidade original da ordem
+                    DataProducaoReal: status.DataProducaoReal,
+                    DiasDesvio: status.DiasDesvio,
+                    StatusEntrega: TraduzirStatus(status.StatusEntrega)
+                ));
+            }
+        }
+
+        // A lógica de KPIs e da tabela de produção será adicionada aqui em breve
+        return new ResultadoGamsAnalisado { PlanoDetalhado = planoDetalhado.OrderBy(p => p.DataEntregaRequerida).ToList() };
     }
 
-    private string TraduzirStatus(int statusGams) => statusGams switch
+    private string TraduzirStatus(int statusGams)
     {
-        0 => "On Time",
-        -1 => "Late / Not Planned",
-        _ => "Unknown"
-    };
+        return statusGams switch
+        {
+            0 => "On Time",
+            -1 => "Late / Not Planned",
+            _ => "Unknown"
+        };
+    }
 }

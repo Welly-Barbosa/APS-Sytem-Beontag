@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace APSSystem.Application.UseCases.AnalisarResultadoGams;
 
 /// <summary>
-/// DTO que contém os resultados da otimização já processados e enriquecidos.
+/// DTO que contém os resultados da otimização já processados e enriquecidos,
+/// prontos para serem exibidos na tela de resultados.
 /// </summary>
 public class ResultadoGamsAnalisado
 {
@@ -21,17 +22,21 @@ public class ResultadoGamsAnalisado
 /// <summary>
 /// Representa a visão de uma Ordem de Cliente e seu status final.
 /// </summary>
-public record ItemDePlanoDetalhado(
-    string NumeroOrdemCliente,
-    string PN_Base,
-    decimal LarguraProduto,
-    decimal CompProduto,
-    DateTime DataEntregaRequerida,
-    decimal QtdDemandada,
-    DateTime? DataProducaoReal,
-    int DiasDesvio,
-    string StatusEntrega
-);
+public record ItemDePlanoDetalhado
+{
+    // Informações da Ordem Original
+    public string NumeroOrdemCliente { get; init; } = string.Empty;
+    public string PN_Base { get; init; } = string.Empty;
+    public decimal LarguraProduto { get; init; }
+    public decimal CompProduto { get; init; }
+    public DateTime DataEntregaRequerida { get; init; }
+    public decimal QtdDemandada { get; init; }
+
+    // Informações do Plano Otimizado
+    public DateTime? DataProducaoReal { get; init; }
+    public int DiasDesvio { get; init; }
+    public string StatusEntrega { get; init; } = string.Empty; // "On Time", "Late", "Not Planned"
+}
 
 /// <summary>
 /// Representa uma Ordem de Produção com seu padrão de corte e perda calculada.

@@ -56,6 +56,7 @@ public partial class App : System.Windows.Application
         services.AddTransient<AlocacaoInventarioService>();
         services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
         services.AddTransient<ICalculadoraDePerdaService, CalculadoraDePerdaService>();
+        services.AddTransient<IDataValidationService, DataValidationService>();
 
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
             LarguraBobinaMae: 78.74m, FatorDePerda: 1.05m,

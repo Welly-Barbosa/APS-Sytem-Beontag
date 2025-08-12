@@ -1,75 +1,106 @@
 ﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
+using LiveChartsCore;
+using LiveChartsCore.Defaults;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
+using SkiaSharp;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace APSSystem.Presentation.WPF.ViewModels;
 
-/// <summary>
-/// ViewModel para a tela de análise de resultados pós-otimização.
-/// </summary>
 public class ResultadosOtimizacaoViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private string _statusMessage = "Loading results...";
-    private bool _isIdle = false;
-
     public string StatusMessage { get => _statusMessage; set { _statusMessage = value; OnPropertyChanged(); } }
-    public bool IsIdle { get => _isIdle; set { _isIdle = value; OnPropertyChanged(); } }
 
     // KPIs
-    private decimal _orderFulfillment;
-    public decimal OrderFulfillment { get => _orderFulfillment; set { _orderFulfillment = value; OnPropertyChanged(); } }
-    private decimal _averageWaste;
-    public decimal AverageWaste { get => _averageWaste; set { _averageWaste = value; OnPropertyChanged(); } }
+    public decimal OrderFulfillmentPercentage { get; set; }
+    public decimal AverageWastePercentage { get; set; }
 
-    // Coleções para as tabelas
+    // Coleções para as Tabelas
     public ObservableCollection<ItemDePlanoDetalhado> PlanoCliente { get; set; } = new();
     public ObservableCollection<ItemOrdemProducao> PlanoProducao { get; set; } = new();
+
+    // Propriedades para o Gráfico de Gantt
+    public ObservableCollection<ISeries> SeriesGantt { get; set; } = new();
+    public Axis[] YAxesGantt { get; set; }
+    public Axis[] XAxesGantt { get; set; }
+
 
     public ResultadosOtimizacaoViewModel(IMediator mediator)
     {
         _mediator = mediator;
+        // Configuração inicial dos eixos do Gantt
+        YAxesGantt = new Axis[] { new Axis { IsVisible = false } }; // O eixo Y é apenas para espaçamento
+        XAxesGantt = new Axis[]
+        {
+            new Axis
+            {
+                UnitWidth = TimeSpan.FromDays(1).Ticks,
+                MinStep = TimeSpan.FromDays(1).Ticks,
+                Labeler = value => new DateTime((long)value).ToString("dd/MM")
+            }
+        };
     }
 
-    /// <summary>
-    /// Método público para carregar e analisar os dados de uma pasta de job.
-    /// </summary>
     public async Task CarregarResultados(string caminhoPastaJob)
     {
-        IsIdle = false;
-        StatusMessage = "Parsing GAMS output files and analyzing results...";
+        StatusMessage = "Parsing and analyzing GAMS results...";
         try
         {
             var command = new AnalisarResultadoGamsCommand(caminhoPastaJob);
             var resultado = await _mediator.Send(command);
 
-            // Garante que a atualização da UI ocorra na thread correta
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            // Prepara os dados para o Gráfico de Gantt
+            var ganttSeries = new List<ISeries>();
+            var maquinas = resultado.PlanoProducao.Select(p => p.Maquina).Distinct().ToList();
+
+            for (int i = 0; i < maquinas.Count; i++)
+            {
+                var maquina = maquinas[i];
+                ganttSeries.Add(new GanttSeries<GanttTask>
+                {
+                    Name = maquina,
+                    Values = resultado.PlanoProducao
+                        .Where(p => p.Maquina == maquina)
+                        // A tarefa começa no início do dia e dura 1 dia (simplificação visual)
+                        .Select(p => new GanttTask(p.DataProducao.Ticks, p.DataProducao.AddDays(1).Ticks, i) { Name = p.PadraoCorte })
+                });
+            }
+
+            // Atualiza a UI na thread correta
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 PlanoCliente.Clear();
                 resultado.PlanoCliente.ForEach(item => PlanoCliente.Add(item));
 
                 PlanoProducao.Clear();
                 resultado.PlanoProducao.ForEach(item => PlanoProducao.Add(item));
+
+                SeriesGantt.Clear();
+                ganttSeries.ForEach(s => SeriesGantt.Add(s));
+
+                // Atualiza os labels do eixo Y para serem os nomes das máquinas
+                YAxesGantt[0].Labels = maquinas;
             });
 
-            // Atualiza os KPIs
-            OrderFulfillment = resultado.OrderFulfillmentPercentage;
-            AverageWaste = resultado.AverageWastePercentage;
-
-            StatusMessage = $"Analysis complete. {resultado.PlanoCliente.Count} customer orders analyzed.";
+            OrderFulfillmentPercentage = resultado.OrderFulfillmentPercentage;
+            AverageWastePercentage = resultado.AverageWastePercentage;
+            StatusMessage = "Analysis complete.";
+            OnPropertyChanged(nameof(OrderFulfillmentPercentage));
+            OnPropertyChanged(nameof(AverageWastePercentage));
         }
         catch (Exception ex)
         {
             StatusMessage = $"ERROR loading results: {ex.Message}";
             MessageBox.Show(ex.Message, "Error Analyzing Results", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-        finally
-        {
-            IsIdle = true;
         }
     }
 }
