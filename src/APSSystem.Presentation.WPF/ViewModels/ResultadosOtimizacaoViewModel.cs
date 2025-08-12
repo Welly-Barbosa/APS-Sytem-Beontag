@@ -1,7 +1,8 @@
 ﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using LiveChartsCore;
-using LiveChartsCore.Defaults; // <-- DIRETIVA 'using' CRÍTICA QUE FALTAVA (para GanttTask)
+using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -36,14 +37,24 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
     {
         _mediator = mediator;
         // Configuração inicial dos eixos do Gantt
-        YAxesGantt = new Axis[] { new Axis { IsVisible = true, Labels = new List<string>() } };
+        // O Eixo Y mostrará os nomes das máquinas
+        YAxesGantt = new Axis[]
+        {
+            new Axis
+            {
+                IsInverted = true, // Inverte o eixo para a máquina 1 ficar no topo
+                Labels = new List<string>(),
+                LabelsPaint = new LiveChartsCore.SkiaSharpView.Painting.SolidColorPaint(SkiaSharp.SKColors.Black)
+            }
+        };
+        // O Eixo X mostrará as datas
         XAxesGantt = new Axis[]
         {
             new Axis
             {
                 UnitWidth = TimeSpan.FromDays(1).Ticks,
                 MinStep = TimeSpan.FromDays(1).Ticks,
-                Labeler = value => new DateTime((long)value).ToString("dd/MM")
+                Labeler = value => new DateTime((long)value).ToString("dd/MM/yyyy")
             }
         };
     }
@@ -62,17 +73,27 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
             for (int i = 0; i < maquinas.Count; i++)
             {
                 var maquina = maquinas[i];
-                ganttSeries.Add(new GanttSeries<GanttTask>
+                // Usando a robusta RowSeries para construir o Gantt
+                ganttSeries.Add(new RowSeries<Core.Entities.PlanoDeProducaoItem>
                 {
                     Name = maquina,
-                    Values = resultado.PlanoProducao
-                        .Where(p => p.Maquina == maquina)
-                        // A tarefa começa no início do dia e dura 1 dia (simplificação visual)
-                        .Select(p => new GanttTask(p.DataProducao.Ticks, p.DataProducao.AddDays(1).Ticks, i) { Name = p.PadraoCorte })
+                    Values = resultado.PlanoProducao.Where(p => p.Maquina == maquina).ToList(),
+                    // Mapeia nosso objeto para as coordenadas do gráfico
+                    Mapping = (planoItem, chartPoint) =>
+                    {
+                        // O valor X (início da barra) é a Data de Produção
+                        chartPoint.Coordinate.X = planoItem.DataProducao.Ticks;
+                        // O valor Primário (comprimento da barra) é de 1 dia (simplificação visual)
+                        chartPoint.Coordinate.PrimaryValue = TimeSpan.FromDays(1).Ticks;
+                        // O valor Y (em qual "linha" desenhar) é o índice da máquina
+                        chartPoint.Coordinate.Y = i;
+                    },
+                    DataLabelsPaint = new LiveChartsCore.SkiaSharpView.Painting.SolidColorPaint(SkiaSharp.SKColors.White),
+                    DataLabelsFormatter = (point) => ((Core.Entities.PlanoDeProducaoItem)point.Model!).PadraoCorte
                 });
             }
 
-            // Usando o nome completo para evitar ambiguidade
+            // Garante que a atualização da UI ocorra na thread correta
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 PlanoCliente.Clear();
@@ -84,6 +105,7 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
                 SeriesGantt.Clear();
                 ganttSeries.ForEach(s => SeriesGantt.Add(s));
 
+                // Atualiza os labels do eixo Y para serem os nomes das máquinas
                 YAxesGantt[0].Labels = maquinas;
             });
 
