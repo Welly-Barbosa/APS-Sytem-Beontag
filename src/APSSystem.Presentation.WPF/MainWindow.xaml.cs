@@ -19,12 +19,17 @@ public partial class MainWindow : Window
 
         DataContext = viewModel;
     }
-
+    private async void AbrirResultados_Click(object sender, RoutedEventArgs e)
+    {
+        var w = new ResultadosOtimizacaoWindow();
+        w.Show();
+        await w.CarregarDadosDoJobAsync(); // usa o wrapper novo
+    }
     private void OnOptimizationCompleted(GamsExecutionResult result)
     {
         var resultadosView = _serviceProvider.GetRequiredService<ResultadosOtimizacaoWindow>();
         resultadosView.CarregarDadosDoJob(result.CaminhoPastaJob);
         resultadosView.Owner = this;
         resultadosView.Show();
-    }
+    } 
 }
