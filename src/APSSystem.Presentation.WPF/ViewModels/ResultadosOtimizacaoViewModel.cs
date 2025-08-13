@@ -1,6 +1,7 @@
 ﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
+using LiveChartsCore.Kernel;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
@@ -73,23 +74,24 @@ public class ResultadosOtimizacaoViewModel : ViewModelBase
             for (int i = 0; i < maquinas.Count; i++)
             {
                 var maquina = maquinas[i];
-                // Usando a robusta RowSeries para construir o Gantt
-                ganttSeries.Add(new RowSeries<Core.Entities.PlanoDeProducaoItem>
+                var rowIndex = i; // evita closure do i
+
+                ganttSeries.Add(new RowSeries<ItemOrdemProducao> // <-- alinhe o tipo aqui
                 {
                     Name = maquina,
-                    Values = resultado.PlanoProducao.Where(p => p.Maquina == maquina).ToList(),
-                    // Mapeia nosso objeto para as coordenadas do gráfico
-                    Mapping = (planoItem, chartPoint) =>
-                    {
-                        // O valor X (início da barra) é a Data de Produção
-                        chartPoint.Coordinate.X = planoItem.DataProducao.Ticks;
-                        // O valor Primário (comprimento da barra) é de 1 dia (simplificação visual)
-                        chartPoint.Coordinate.PrimaryValue = TimeSpan.FromDays(1).Ticks;
-                        // O valor Y (em qual "linha" desenhar) é o índice da máquina
-                        chartPoint.Coordinate.Y = i;
-                    },
-                    DataLabelsPaint = new LiveChartsCore.SkiaSharpView.Painting.SolidColorPaint(SkiaSharp.SKColors.White),
-                    DataLabelsFormatter = (point) => ((Core.Entities.PlanoDeProducaoItem)point.Model!).PadraoCorte
+                    Values = resultado.PlanoProducao
+                        .Where(p => p.Maquina == maquina)
+                        .ToList(), // materializa
+
+                    // (modelo, indice) => Coordinate
+                    Mapping = (planoItem, _) => new Coordinate(
+                        planoItem.DataProducao.Ticks,              // X = início (ticks)
+                        rowIndex,                                  // Y = “linha” da máquina
+                        TimeSpan.FromDays(1).Ticks                 // PrimaryValue = duração (1 dia)
+                    ),
+
+                    DataLabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.White),
+                    DataLabelsFormatter = p => ((ItemOrdemProducao)p.Model!).PadraoCorte
                 });
             }
 

@@ -310,7 +310,7 @@ loop((p_base,w,c,t)$(p_demanda(p_base,w,c,t) > 0),
         s_code = 0$(p_diasDesvio(p_base,w,c,t) <= 0) + 1$(p_diasDesvio(p_base,w,c,t) > 0);
         put f_status_csv s_code:0:0 /;
     else
-        put f_status_csv ',,,-1' /;
+        put f_status_csv ' , ,-1' /;
     );
 );
 putclose f_status_csv;
