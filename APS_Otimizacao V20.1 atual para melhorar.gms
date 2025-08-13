@@ -173,8 +173,8 @@ v_geraCorte.up(p_base,w,c) = UmaxCuts(p_base,w,c);
 * ==============================================================================
 Scalar
     s_contadorPadroes   / 0 /, s_podeMelhorar  / 1 /,     s_iter / 0 /,
-    s_iterMax           / 499 /, s_semMelhora / 0 /,     s_semMelhoraMax / 10 /,
-    s_epsRedCost        / 1e-6 /, s_lastCusto / INF /,
+    s_iterMax           / 100 /, s_semMelhora / 0 /,     s_semMelhoraMax / 10 /,
+    s_epsRedCost        / 1e-3 /, s_lastCusto / INF /,
     s_tempoMaximoTotal  / 300 /, s_timeStart,
     epsDual             / 1e-9 /;
 Set lenActive(c);
@@ -310,7 +310,7 @@ loop((p_base,w,c,t)$(p_demanda(p_base,w,c,t) > 0),
         s_code = 0$(p_diasDesvio(p_base,w,c,t) <= 0) + 1$(p_diasDesvio(p_base,w,c,t) > 0);
         put f_status_csv s_code:0:0 /;
     else
-        put f_status_csv ',,,-1' /;
+        put f_status_csv ' , ,-1' /;
     );
 );
 putclose f_status_csv;

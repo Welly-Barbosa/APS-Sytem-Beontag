@@ -14,18 +14,10 @@ public class GamsOutputParser : IGamsOutputParser
 {
     public async Task<GamsOutputData> ParseAsync(string caminhoPastaJob)
     {
-        // Define a configuração padrão para ler os arquivos CSV gerados pelo GAMS
-        var csvConfig = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HasHeaderRecord = true, // A primeira linha é o cabeçalho
-            Delimiter = ",",        // O delimitador é a vírgula
-            TrimOptions = TrimOptions.Trim, // Remove espaços em branco
-            BadDataFound = null     // Ignora erros de contagem de colunas
-        };
-
-        var planoDeProducao = await ParseFileAsync<PlanoDeProducaoItem>(Path.Combine(caminhoPastaJob, "f_plano_csv.put"), csvConfig);
-        var composicao = await ParseFileAsync<ComposicaoPadraoCorte>(Path.Combine(caminhoPastaJob, "f_composicao_csv.put"), csvConfig);
-        var status = await ParseFileAsync<StatusDeEntrega>(Path.Combine(caminhoPastaJob, "f_status_csv.put"), csvConfig);
+        // Passa o mapa customizado apenas para o arquivo que precisa dele
+        var planoDeProducao = await ParseFileAsync<PlanoDeProducaoItem, ClassMap<PlanoDeProducaoItem>>(Path.Combine(caminhoPastaJob, "f_plano_csv.put"));
+        var composicao = await ParseFileAsync<ComposicaoPadraoCorte, ClassMap<ComposicaoPadraoCorte>>(Path.Combine(caminhoPastaJob, "f_composicao_csv.put"));
+        var status = await ParseFileAsync<StatusDeEntrega, StatusDeEntregaMap>(Path.Combine(caminhoPastaJob, "f_status_csv.put"));
 
         return new GamsOutputData
         {
@@ -35,19 +27,21 @@ public class GamsOutputParser : IGamsOutputParser
         };
     }
 
-    private async Task<List<T>> ParseFileAsync<T>(string filePath, CsvConfiguration config)
+    private async Task<List<T>> ParseFileAsync<T, TMap>(string filePath) where TMap : ClassMap
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists(filePath)) return new List<T>();
+
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            // Retorna uma lista vazia se o arquivo de resultado não foi gerado
-            return new List<T>();
-        }
+            HasHeaderRecord = true,
+            Delimiter = ",",
+        };
 
         using (var reader = new StreamReader(filePath))
         using (var csv = new CsvReader(reader, config))
         {
-            // O CsvHelper mapeia automaticamente as colunas do CSV
-            // para as propriedades das nossas classes C# (PlanoDeProducaoItem, etc.)
+            // Registra o mapa de classe específico para este tipo de arquivo
+            csv.Context.RegisterClassMap<TMap>();
             var records = csv.GetRecords<T>().ToList();
             return await Task.FromResult(records);
         }

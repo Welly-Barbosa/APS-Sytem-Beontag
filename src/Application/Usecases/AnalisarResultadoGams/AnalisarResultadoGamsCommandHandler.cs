@@ -1,90 +1,105 @@
-﻿using APSSystem.Application.Interfaces;
-using APSSystem.Core.Interfaces;
-using APSSystem.Core.Services;
+﻿using Application.DTOs;
+using APSSystem.Application.UseCases.AnalisarResultadoGams;
+using APSSystem.Core.Entities;
+using Domain.Entities;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
-namespace APSSystem.Application.UseCases.AnalisarResultadoGams;
-
-public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResultadoGamsCommand, ResultadoGamsAnalisado>
+namespace Application.Usecases.AnalisarResultadoGams
 {
-    private readonly IGamsOutputParser _gamsParser;
-    private readonly IOrdemClienteRepository _ordemClienteRepo;
-    private readonly ICalculadoraDePerdaService _calculadoraDePerda;
-
-    public AnalisarResultadoGamsCommandHandler(IGamsOutputParser gamsParser, IOrdemClienteRepository ordemClienteRepo, ICalculadoraDePerdaService calculadoraDePerda)
+    /// <summary>
+    /// Command handler para analisar os resultados do GAMS e gerar um DTO de produção.
+    /// </summary>
+    public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResultadoGamsCommand, List<ProducaoDto>>
     {
-        _gamsParser = gamsParser;
-        _ordemClienteRepo = ordemClienteRepo;
-        _calculadoraDePerda = calculadoraDePerda;
-    }
-
-    public async Task<ResultadoGamsAnalisado> Handle(AnalisarResultadoGamsCommand request, CancellationToken cancellationToken)
-    {
-        var dadosGams = await _gamsParser.ParseAsync(request.CaminhoPastaJob);
-        var ordensOriginais = (await _ordemClienteRepo.GetAllAsync()).ToList();
-        var perdaPorPadrao = _calculadoraDePerda.CalcularPerdaPorPadrao(dadosGams.PlanoDeProducao, dadosGams.ComposicaoDosPadroes);
-
-        var planoClienteDetalhado = new List<ItemDePlanoDetalhado>();
-        foreach (var status in dadosGams.StatusDasEntregas)
+        /// <summary>
+        /// Manipula o comando de análise de resultados do GAMS.
+        /// </summary>
+        /// <param name="request">O comando contendo o conteúdo do arquivo de resultado do GAMS.</param>
+        /// <param name="cancellationToken">O token de cancelamento.</param>
+        /// <returns>Uma lista de DTOs de produção representando o plano de produção otimizado.</returns>
+        public Task<List<ProducaoDto>> Handle(AnalisarResultadoGamsCommand request, CancellationToken cancellationToken)
         {
-            var ordensCorrespondentes = ordensOriginais.Where(o =>
-                o.ItemRequisitado.PN_Generico == status.PN_Base &&
-                o.ItemRequisitado.Largura == status.LarguraProduto &&
-                o.ItemRequisitado.Comprimento == status.CompProduto &&
-                o.DataEntrega.Date == status.DataEntregaRequerida.Date
-            ).ToList();
+            var producoes = new List<Producao>();
+            var linhas = request.ConteudoArquivo.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (var ordem in ordensCorrespondentes)
+            // Extrair o valor da função objetivo
+            var linhaFuncaoObjetivo = linhas.FirstOrDefault(l => l.Contains("OBJECTIVE VALUE"));
+            if (linhaFuncaoObjetivo != null)
             {
-                planoClienteDetalhado.Add(new ItemDePlanoDetalhado(
-                    ordem.NumeroOrdem,
-                    status.PN_Base,
-                    status.LarguraProduto,
-                    status.CompProduto,
-                    status.DataEntregaRequerida,
-                    ordem.Quantidade,
-                    status.DataProducaoReal,
-                    status.DiasDesvio,
-                    TraduzirStatus(status.StatusEntrega)
-                ));
+                var match = Regex.Match(linhaFuncaoObjetivo, @"\d+\.\d+");
+                if (match.Success)
+                {
+                    double.TryParse(match.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var valorObjetivo);
+                }
             }
+
+            // Encontrar o início da seção de variáveis
+            int indiceInicioVariaveis = -1;
+            for (int i = 0; i < linhas.Length; i++)
+            {
+                if (linhas[i].Trim() == "---- VAR X")
+                {
+                    indiceInicioVariaveis = i + 1;
+                    break;
+                }
+            }
+
+            if (indiceInicioVariaveis != -1)
+            {
+                for (int i = indiceInicioVariaveis; i < linhas.Length; i++)
+                {
+                    if (linhas[i].Trim().StartsWith("----")) break;
+
+                    var partes = linhas[i].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (partes.Length >= 4)
+                    {
+                        var identificador = partes[0];
+                        double.TryParse(partes[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var nivel);
+
+                        if (nivel > 0)
+                        {
+                            var ids = identificador.Split('.');
+                            if (ids.Length == 2)
+                            {
+                                int.TryParse(ids[0], out var maquinaId);
+                                int.TryParse(ids[1], out var produtoId);
+                                producoes.Add(new Producao { MaquinaId = maquinaId, ProdutoId = produtoId, Quantidade = (int)nivel });
+                            }
+                        }
+                    }
+                }
+            }
+
+            var resultados = GamsResultParser.Parse(request.ConteudoArquivo);
+            foreach (var item in resultados.Variables)
+            {
+                // Explicação da Lógica: Para cada variável no resultado do GAMS, tentamos converter seu nome
+                // (que deve representar o ID da máquina) em um número inteiro.
+                // Isso é necessário para comparar com o `MaquinaId` (int) da nossa entidade `Producao`.
+                if (int.TryParse(item.Name, out int maquinaId))
+                {
+                    // Se a conversão for bem-sucedida, procuramos a produção correspondente usando o ID numérico.
+                    var producao = producoes.FirstOrDefault(p => p.MaquinaId == maquinaId);
+                    if (producao != null)
+                    {
+                        producao.HoraInicio = item.Level;
+                        producao.Duracao = item.Marginal;
+                    }
+                }
+            }
+
+            var producaoDtos = producoes.Select(p => new ProducaoDto
+            {
+                MaquinaId = p.MaquinaId,
+                ProdutoId = p.ProdutoId,
+                Quantidade = p.Quantidade,
+                HoraInicio = p.HoraInicio,
+                Duracao = p.Duracao
+            }).ToList();
+
+            return Task.FromResult(producaoDtos);
         }
-
-        var planoProducao = (from plano in dadosGams.PlanoDeProducao
-                             join comp in dadosGams.ComposicaoDosPadroes on plano.PadraoCorte equals comp.PadraoCorte into comps
-                             let composicaoFormatada = string.Join(", ", comps.Select(c => $"{c.QtdPorBobinaMae}x {c.PN_Base}-{c.LarguraProduto}"))
-                             select new ItemOrdemProducao(
-                                 plano.DataProducao,
-                                 plano.Maquina,
-                                 plano.PadraoCorte,
-                                 plano.QtdBobinasMae,
-                                 composicaoFormatada,
-                                 perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
-                             )).ToList();
-
-        var totalOrdens = planoClienteDetalhado.Count;
-        var ordensNoPrazo = planoClienteDetalhado.Count(p => p.StatusEntrega == "On Time");
-        var fulfillment = totalOrdens > 0 ? (decimal)ordensNoPrazo / totalOrdens : 0;
-        var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
-
-        return new ResultadoGamsAnalisado
-        {
-            // CORREÇÃO: Usando o nome correto da propriedade: PlanoCliente
-            PlanoCliente = planoClienteDetalhado.OrderBy(p => p.DataEntregaRequerida).ToList(),
-            PlanoProducao = planoProducao,
-            OrderFulfillmentPercentage = fulfillment * 100,
-            AverageWastePercentage = perdaMedia * 100,
-        };
     }
-
-    private string TraduzirStatus(int statusGams) => statusGams switch
-    {
-        0 => "On Time",
-        -1 => "Late / Not Planned",
-        _ => "Unknown"
-    };
 }

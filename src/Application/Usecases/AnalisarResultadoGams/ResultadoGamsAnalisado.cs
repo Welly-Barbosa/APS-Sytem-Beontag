@@ -30,8 +30,8 @@ public record ItemDePlanoDetalhado(
     DateTime DataEntregaRequerida,
     decimal QtdDemandada,
     DateTime? DataProducaoReal,
-    int DiasDesvio,
-    string StatusEntrega
+    int? DiasDesvio,
+    int StatusEntrega
 );
 
 /// <summary>

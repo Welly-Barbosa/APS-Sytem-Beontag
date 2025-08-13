@@ -1,9 +1,18 @@
-﻿using MediatR;
+﻿using Application.DTOs; // Será resolvido após corrigir os namespaces no handler
+using MediatR;
+using System.Collections.Generic;
 
-namespace APSSystem.Application.UseCases.AnalisarResultadoGams;
-
-/// <summary>
-/// Representa o comando para iniciar a análise dos arquivos de resultado de uma execução do GAMS.
-/// </summary>
-/// <param name="CaminhoPastaJob">O caminho para a pasta que contém os arquivos .put de resultado.</param>
-public record AnalisarResultadoGamsCommand(string CaminhoPastaJob) : IRequest<ResultadoGamsAnalisado>;
+// Namespace ajustado para corresponder à estrutura do seu projeto
+namespace APSSystem.Application.UseCases.AnalisarResultadoGams
+{
+    /// <summary>
+    /// Comando para solicitar a análise de um arquivo de resultado do GAMS.
+    /// </summary>
+    public class AnalisarResultadoGamsCommand : IRequest<List<ProducaoDto>>
+    {
+        /// <summary>
+        /// Conteúdo textual completo do arquivo de resultado a ser analisado.
+        /// </summary>
+        public string ConteudoArquivo { get; set; }
+    }
+}

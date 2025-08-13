@@ -14,6 +14,6 @@ public record StatusDeEntrega
     public DateTime DataEntregaRequerida { get; set; }
     public decimal QtdDemandada { get; set; }
     public DateTime? DataProducaoReal { get; set; }
-    public int DiasDesvio { get; set; }
+    public int? DiasDesvio { get; set; }
     public int StatusEntrega { get; set; }
 }
