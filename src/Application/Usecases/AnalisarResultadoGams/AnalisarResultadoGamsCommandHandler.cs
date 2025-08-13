@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using APSSystem.Application.DTOs;
 using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using APSSystem.Core.Entities;
 using Domain.Entities;
