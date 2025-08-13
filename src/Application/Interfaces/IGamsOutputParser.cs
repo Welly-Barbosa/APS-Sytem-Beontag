@@ -1,16 +1,18 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using APSSystem.Application.DTOs;
 
-namespace APSSystem.Application.Interfaces;
-
-/// <summary>
-/// Define o contrato para um serviço que lê e interpreta os arquivos de resultado do GAMS.
-/// </summary>
-public interface IGamsOutputParser
+namespace APSSystem.Application.Interfaces
 {
     /// <summary>
-    /// Lê todos os arquivos de resultado de uma pasta de job específica e os converte em entidades de domínio.
+    /// Define o contrato para interpretar o conteúdo textual de saída do GAMS.
     /// </summary>
-    /// <param name="caminhoPastaJob">O caminho completo para a pasta que contém os arquivos .put.</param>
-    /// <returns>Um DTO contendo os dados processados.</returns>
-    Task<GamsOutputData> ParseAsync(string caminhoPastaJob);
+    public interface IGamsOutputParser
+    {
+        /// <summary>
+        /// Realiza o parse do conteúdo bruto (texto) retornado pelo GAMS.
+        /// </summary>
+        /// <param name="conteudo">Conteúdo textual de saída do GAMS.</param>
+        /// <returns>Lista de itens de produção.</returns>
+        List<ProducaoDto> Parse(string conteudo);
+    }
 }

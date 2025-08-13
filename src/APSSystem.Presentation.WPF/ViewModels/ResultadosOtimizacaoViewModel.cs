@@ -1,126 +1,93 @@
-﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
-using LiveChartsCore;
-using LiveChartsCore.Defaults;
-using LiveChartsCore.Kernel;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using MediatR;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Input;
+using APSSystem.Application.DTOs;
+using APSSystem.Application.UseCases.AnalisarResultadoGams;
+using CommunityToolkit.Mvvm.Input; // Usando o pacote padrão da indústria
+using MediatR;
 
-namespace APSSystem.Presentation.WPF.ViewModels;
-
-public class ResultadosOtimizacaoViewModel : ViewModelBase
+namespace APSSystem.Presentation.WPF.ViewModels
 {
-    private readonly IMediator _mediator;
-    private string _statusMessage = "Loading results...";
-    public string StatusMessage { get => _statusMessage; set { _statusMessage = value; OnPropertyChanged(); } }
-
-    // KPIs
-    public decimal OrderFulfillmentPercentage { get; set; }
-    public decimal AverageWastePercentage { get; set; }
-
-    // Coleções para as Tabelas
-    public ObservableCollection<ItemDePlanoDetalhado> PlanoCliente { get; set; } = new();
-    public ObservableCollection<ItemOrdemProducao> PlanoProducao { get; set; } = new();
-
-    // Propriedades para o Gráfico de Gantt
-    public ObservableCollection<ISeries> SeriesGantt { get; set; } = new();
-    public Axis[] YAxesGantt { get; set; }
-    public Axis[] XAxesGantt { get; set; }
-
-
-    public ResultadosOtimizacaoViewModel(IMediator mediator)
+    public sealed class ResultadosOtimizacaoViewModel : ViewModelBase
     {
-        _mediator = mediator;
-        // Configuração inicial dos eixos do Gantt
-        // O Eixo Y mostrará os nomes das máquinas
-        YAxesGantt = new Axis[]
+        private readonly IMediator _mediator;
+
+        private double _orderFulfillmentPercentage;
+        public double OrderFulfillmentPercentage
         {
-            new Axis
-            {
-                IsInverted = true, // Inverte o eixo para a máquina 1 ficar no topo
-                Labels = new List<string>(),
-                LabelsPaint = new LiveChartsCore.SkiaSharpView.Painting.SolidColorPaint(SkiaSharp.SKColors.Black)
-            }
-        };
-        // O Eixo X mostrará as datas
-        XAxesGantt = new Axis[]
+            get => _orderFulfillmentPercentage;
+            private set { _orderFulfillmentPercentage = value; OnPropertyChanged(); }
+        }
+
+        private double _averageWastePercentage;
+        public double AverageWastePercentage
         {
-            new Axis
-            {
-                UnitWidth = TimeSpan.FromDays(1).Ticks,
-                MinStep = TimeSpan.FromDays(1).Ticks,
-                Labeler = value => new DateTime((long)value).ToString("dd/MM/yyyy")
-            }
-        };
-    }
+            get => _averageWastePercentage;
+            private set { _averageWastePercentage = value; OnPropertyChanged(); }
+        }
 
-    public async Task CarregarResultados(string caminhoPastaJob)
-    {
-        StatusMessage = "Parsing and analyzing GAMS results...";
-        try
+        public ObservableCollection<ProducaoDto> Itens { get; } = new();
+        public ObservableCollection<PlanoProducaoItem> PlanoProducao { get; } = new();
+        public ObservableCollection<PlanoClienteItem> PlanoCliente { get; } = new();
+        public IAsyncRelayCommand CarregarArquivoCommand { get; }
+
+        public ResultadosOtimizacaoViewModel(IMediator mediator)
         {
-            var command = new AnalisarResultadoGamsCommand(caminhoPastaJob);
-            var resultado = await _mediator.Send(command);
+            this._mediator = mediator;
+            CarregarArquivoCommand = new AsyncRelayCommand(CarregarArquivoAsync);
+        }
 
-            var ganttSeries = new List<ISeries>();
-            var maquinas = resultado.PlanoProducao.Select(p => p.Maquina).Distinct().ToList();
+        public async Task CarregarArquivoAsync()
+        {
+            var caminho = SelecionarArquivo();
+            if (string.IsNullOrWhiteSpace(caminho) || !File.Exists(caminho))
+                return;
 
-            for (int i = 0; i < maquinas.Count; i++)
-            {
-                var maquina = maquinas[i];
-                var rowIndex = i; // evita closure do i
+            var conteudo = await File.ReadAllTextAsync(caminho);
+            var cmd = new AnalisarResultadoGamsCommand(conteudo);
+            var resultado = await _mediator.Send(cmd);
 
-                ganttSeries.Add(new RowSeries<ItemOrdemProducao> // <-- alinhe o tipo aqui
-                {
-                    Name = maquina,
-                    Values = resultado.PlanoProducao
-                        .Where(p => p.Maquina == maquina)
-                        .ToList(), // materializa
-
-                    // (modelo, indice) => Coordinate
-                    Mapping = (planoItem, _) => new Coordinate(
-                        planoItem.DataProducao.Ticks,              // X = início (ticks)
-                        rowIndex,                                  // Y = “linha” da máquina
-                        TimeSpan.FromDays(1).Ticks                 // PrimaryValue = duração (1 dia)
-                    ),
-
-                    DataLabelsPaint = new SolidColorPaint(SkiaSharp.SKColors.White),
-                    DataLabelsFormatter = p => ((ItemOrdemProducao)p.Model!).PadraoCorte
-                });
-            }
-
-            // Garante que a atualização da UI ocorra na thread correta
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                PlanoCliente.Clear();
-                resultado.PlanoCliente.ForEach(item => PlanoCliente.Add(item));
+                Itens.Clear();
+                foreach (var item in resultado) Itens.Add(item);
+
+                var porLinha = resultado
+                    .GroupBy(x => x.Linha ?? string.Empty)
+                    .Select(g => new PlanoProducaoItem
+                    {
+                        Linha = g.Key,
+                        QuantidadeTotal = g.Sum(x => x.Quantidade)
+                    }).OrderByDescending(x => x.QuantidadeTotal);
 
                 PlanoProducao.Clear();
-                resultado.PlanoProducao.ForEach(item => PlanoProducao.Add(item));
+                foreach (var p in porLinha) PlanoProducao.Add(p);
 
-                SeriesGantt.Clear();
-                ganttSeries.ForEach(s => SeriesGantt.Add(s));
+                var porProduto = resultado
+                    .GroupBy(x => x.Produto ?? string.Empty)
+                    .Select(g => new PlanoClienteItem
+                    {
+                        ClienteOuProduto = g.Key,
+                        QuantidadeTotal = g.Sum(x => x.Quantidade)
+                    }).OrderByDescending(x => x.QuantidadeTotal);
 
-                // Atualiza os labels do eixo Y para serem os nomes das máquinas
-                YAxesGantt[0].Labels = maquinas;
+                PlanoCliente.Clear();
+                foreach (var p in porProduto) PlanoCliente.Add(p);
+
+                var total = resultado.Count;
+                var atendidos = resultado.Count(x => x.Quantidade > 0);
+                OrderFulfillmentPercentage = total == 0 ? 0 : Math.Round((double)atendidos / total * 100.0, 2);
+                AverageWastePercentage = 0;
             });
-
-            OrderFulfillmentPercentage = resultado.OrderFulfillmentPercentage;
-            AverageWastePercentage = resultado.AverageWastePercentage;
-            StatusMessage = "Analysis complete.";
-            OnPropertyChanged(nameof(OrderFulfillmentPercentage));
-            OnPropertyChanged(nameof(AverageWastePercentage));
         }
-        catch (Exception ex)
+
+        private static string SelecionarArquivo()
         {
-            StatusMessage = $"ERROR loading results: {ex.Message}";
-            MessageBox.Show(ex.Message, "Error Analyzing Results", MessageBoxButton.OK, MessageBoxImage.Error);
+            var ofd = new Microsoft.Win32.OpenFileDialog { Filter = "GAMS Output|*.csv;*.txt;*.lst|All Files|*.*" };
+            return ofd.ShowDialog() == true ? ofd.FileName : string.Empty;
         }
     }
 }

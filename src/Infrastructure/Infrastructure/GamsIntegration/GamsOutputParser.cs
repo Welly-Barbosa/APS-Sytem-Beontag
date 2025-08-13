@@ -1,49 +1,68 @@
-﻿using APSSystem.Application.Interfaces;
-using APSSystem.Core.Entities;
-using CsvHelper;
-using CsvHelper.Configuration;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using APSSystem.Application.DTOs;
+using APSSystem.Application.Interfaces;
 
-namespace APSSystem.Infrastructure.GamsIntegration;
-
-public class GamsOutputParser : IGamsOutputParser
+namespace APSSystem.Infrastructure.GamsIntegration
 {
-    public async Task<GamsOutputData> ParseAsync(string caminhoPastaJob)
+    /// <summary>
+    /// Implementação do parser de saída do GAMS.
+    /// </summary>
+    public sealed class GamsOutputParser : IGamsOutputParser
     {
-        // Passa o mapa customizado apenas para o arquivo que precisa dele
-        var planoDeProducao = await ParseFileAsync<PlanoDeProducaoItem, ClassMap<PlanoDeProducaoItem>>(Path.Combine(caminhoPastaJob, "f_plano_csv.put"));
-        var composicao = await ParseFileAsync<ComposicaoPadraoCorte, ClassMap<ComposicaoPadraoCorte>>(Path.Combine(caminhoPastaJob, "f_composicao_csv.put"));
-        var status = await ParseFileAsync<StatusDeEntrega, StatusDeEntregaMap>(Path.Combine(caminhoPastaJob, "f_status_csv.put"));
+        private static readonly CultureInfo culture = CultureInfo.InvariantCulture;
 
-        return new GamsOutputData
+        public List<ProducaoDto> Parse(string conteudo)
         {
-            PlanoDeProducao = planoDeProducao,
-            ComposicaoDosPadroes = composicao,
-            StatusDasEntregas = status
-        };
-    }
+            if (string.IsNullOrWhiteSpace(conteudo))
+                return new List<ProducaoDto>();
 
-    private async Task<List<T>> ParseFileAsync<T, TMap>(string filePath) where TMap : ClassMap
-    {
-        if (!File.Exists(filePath)) return new List<T>();
+            var linhas = conteudo
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .ToList();
 
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HasHeaderRecord = true,
-            Delimiter = ",",
-        };
+            if (!linhas.Any()) return new List<ProducaoDto>();
 
-        using (var reader = new StreamReader(filePath))
-        using (var csv = new CsvReader(reader, config))
-        {
-            // Registra o mapa de classe específico para este tipo de arquivo
-            csv.Context.RegisterClassMap<TMap>();
-            var records = csv.GetRecords<T>().ToList();
-            return await Task.FromResult(records);
+            var primeiraLinha = linhas.First();
+            var separador = primeiraLinha.Contains(';') ? ';' : ',';
+
+            if (TemCabecalho(primeiraLinha))
+                linhas = linhas.Skip(1).ToList();
+
+            var itens = new List<ProducaoDto>();
+            foreach (var l in linhas)
+            {
+                var cols = l.Split(separador);
+                var dto = new ProducaoDto
+                {
+                    Linha = GetOrEmpty(cols, 0),
+                    Produto = GetOrEmpty(cols, 1),
+                    Quantidade = ParseDouble(GetOrEmpty(cols, 2)),
+                    Inicio = ParseDate(GetOrEmpty(cols, 3)),
+                    Fim = ParseDate(GetOrEmpty(cols, 4))
+                };
+                itens.Add(dto);
+            }
+            return itens;
         }
+
+        private static bool TemCabecalho(string linha)
+        {
+            var lower = linha.ToLowerInvariant();
+            return lower.Contains("linha") || lower.Contains("produto");
+        }
+
+        private static string GetOrEmpty(string[] cols, int idx) =>
+            (idx < cols.Length) ? cols[idx].Trim() : string.Empty;
+
+        private static double ParseDouble(string s) =>
+            double.TryParse(s, NumberStyles.Any, culture, out var v) ? v : 0d;
+
+        private static DateTime? ParseDate(string s) =>
+            DateTime.TryParse(s, culture, DateTimeStyles.AssumeLocal, out var dt) ? dt : null;
     }
 }
