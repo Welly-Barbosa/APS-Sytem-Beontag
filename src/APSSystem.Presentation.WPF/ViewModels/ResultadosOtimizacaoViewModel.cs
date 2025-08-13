@@ -3,10 +3,11 @@ using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using APSSystem.Presentation.WPF.Commands; // AsyncRelayCommand
 using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
-using LiveChartsCore.Measure;
-using LiveChartsCore.SkiaSharpView;            // Axis, StackedRowSeries, etc.
+using LiveChartsCore.Measure;                  // DataLabelsPosition
+using LiveChartsCore.SkiaSharpView;            // Axis, StackedRowSeries
 using MediatR;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -142,8 +143,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
         public Task CarregarResultadosAsync() => CarregarArquivoAsync();
 
         /// <summary>
-        /// Lê o arquivo de saída do GAMS, envia o comando de análise e preenche
-        /// as coleções/indicadores para a UI (grid, gráficos e KPIs).
+        /// Seleciona um arquivo (via UI) e carrega os dados do GAMS.
         /// </summary>
         public async Task CarregarArquivoAsync()
         {
@@ -156,14 +156,48 @@ namespace APSSystem.Presentation.WPF.ViewModels
                 return;
             }
 
+            await CarregarArquivoAsync(caminho).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Carrega o conteúdo a partir de um caminho de arquivo específico.
+        /// </summary>
+        /// <param name="caminho">Caminho do arquivo de saída do GAMS.</param>
+        public async Task CarregarArquivoAsync(string caminho)
+        {
+            if (string.IsNullOrWhiteSpace(caminho) || !File.Exists(caminho))
+            {
+                StatusMessage = "Caminho inválido.";
+                return;
+            }
+
             StatusMessage = "Lendo arquivo...";
             var conteudo = await File.ReadAllTextAsync(caminho).ConfigureAwait(false);
+            await ProcessarConteudoAsync(conteudo).ConfigureAwait(false);
+        }
 
+        /// <summary>
+        /// Carrega os dados a partir de conteúdo textual já lido.
+        /// </summary>
+        /// <param name="conteudo">Conteúdo bruto do arquivo de saída do GAMS.</param>
+        public Task CarregarConteudoAsync(string conteudo)
+            => ProcessarConteudoAsync(conteudo);
+
+        // ===========================
+        // Métodos privados
+        // ===========================
+
+        /// <summary>
+        /// Processa o conteúdo do GAMS (envia ao caso de uso, preenche coleções, KPIs e gráfico).
+        /// </summary>
+        /// <param name="conteudo">Conteúdo bruto do arquivo de saída do GAMS.</param>
+        private async Task ProcessarConteudoAsync(string conteudo)
+        {
             StatusMessage = "Processando dados...";
             var cmd = new AnalisarResultadoGamsCommand(conteudo);
             var resultado = await mediator.Send(cmd).ConfigureAwait(false);
 
-            // 1) Grid
+            // 1) Grid - limpa e carrega
             Itens.Clear();
             foreach (var item in resultado)
                 Itens.Add(item);
@@ -187,6 +221,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
             // 3) PlanoCliente (proxy por Produto)
             PlanoCliente.Clear();
 
+            // // Agrupamos por Produto e somamos Quantidade (até existir Cliente real no DTO)
             var porProduto = resultado
                 .GroupBy(x => x.Produto ?? string.Empty)
                 .Select(g => new PlanoClienteItem
@@ -211,16 +246,12 @@ namespace APSSystem.Presentation.WPF.ViewModels
             StatusMessage = "Concluído.";
         }
 
-        // ===========================
-        // Métodos privados
-        // ===========================
-
         /// <summary>
         /// Monta o gráfico de Gantt usando duas séries empilhadas:
         /// uma de offset (invisível) e outra de duração (visível).
         /// </summary>
         /// <param name="resultado">Lista de itens de produção.</param>
-        private void MontarGantt(System.Collections.Generic.List<ProducaoDto> resultado)
+        private void MontarGantt(List<ProducaoDto> resultado)
         {
             // // Seleciona apenas itens com janela válida
             var comJanela = resultado
@@ -270,12 +301,12 @@ namespace APSSystem.Presentation.WPF.ViewModels
             {
                 Values = duracoes,
                 Name = "Duração",
-                DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.Middle,
+                DataLabelsPosition = DataLabelsPosition.Middle,
                 // Substitui o uso obsoleto de point.PrimaryValue
                 DataLabelsFormatter = point =>
                 {
                     var hours = point.Coordinate.PrimaryValue;
-                    // // Dá robustez contra valores inválidos
+                    // // Robustez contra valores inválidos
                     if (double.IsNaN(hours) || double.IsInfinity(hours) || hours < 0) return string.Empty;
 
                     var ts = TimeSpan.FromHours(hours);
@@ -322,6 +353,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
         // ===========================
         // INotifyPropertyChanged
         // ===========================
+
         /// <summary>
         /// Evento disparado quando uma propriedade pública é alterada.
         /// </summary>
@@ -332,37 +364,41 @@ namespace APSSystem.Presentation.WPF.ViewModels
         /// </summary>
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 
-    /// <summary>
-    /// DTO de exibição para agregação por linha de produção.
-    /// </summary>
-    public sealed class PlanoProducaoItem
-    {
-        /// <summary>
-        /// Identificador/nome da linha de produção.
-        /// </summary>
-        public string Linha { get; set; } = string.Empty;
+        // ===========================
+        // Tipos aninhados (evitam colisões com classes homônimas em outros arquivos)
+        // ===========================
 
         /// <summary>
-        /// Quantidade total planejada/produzida na linha.
+        /// Item agregado por linha de produção.
         /// </summary>
-        public double QuantidadeTotal { get; set; }
-    }
+        public sealed class PlanoProducaoItem
+        {
+            /// <summary>
+            /// Identificador/nome da linha de produção.
+            /// </summary>
+            public string Linha { get; set; } = string.Empty;
 
-    /// <summary>
-    /// DTO de exibição para agregação por cliente (ou produto como proxy).
-    /// </summary>
-    public sealed class PlanoClienteItem
-    {
-        /// <summary>
-        /// Nome do cliente ou, provisoriamente, do produto.
-        /// </summary>
-        public string ClienteOuProduto { get; set; } = string.Empty;
+            /// <summary>
+            /// Quantidade total planejada/produzida na linha.
+            /// </summary>
+            public double QuantidadeTotal { get; set; }
+        }
 
         /// <summary>
-        /// Quantidade total atribuída ao cliente/produto.
+        /// Item agregado por cliente (ou produto como proxy).
         /// </summary>
-        public double QuantidadeTotal { get; set; }
+        public sealed class PlanoClienteItem
+        {
+            /// <summary>
+            /// Nome do cliente ou, provisoriamente, do produto.
+            /// </summary>
+            public string ClienteOuProduto { get; set; } = string.Empty;
+
+            /// <summary>
+            /// Quantidade total atribuída ao cliente/produto.
+            /// </summary>
+            public double QuantidadeTotal { get; set; }
+        }
     }
 }
