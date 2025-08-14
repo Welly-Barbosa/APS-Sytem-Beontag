@@ -2,6 +2,7 @@
 using APSSystem.Application.UseCases.GerarArquivoGams;
 using APSSystem.Application.UseCases.IniciarOtimizacao;
 using APSSystem.Application.UseCases.ObterDadosDashboard;
+using APSSystem.Application.Services;
 using APSSystem.Core.Entities;
 using APSSystem.Core.Enums;
 using APSSystem.Presentation.WPF.Commands;

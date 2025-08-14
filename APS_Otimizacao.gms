@@ -174,7 +174,7 @@ v_geraCorte.up(p_base,w,c) = UmaxCuts(p_base,w,c);
 Scalar
     s_contadorPadroes   / 0 /, s_podeMelhorar  / 1 /,     s_iter / 0 /,
     s_iterMax           / 499 /, s_semMelhora / 0 /,     s_semMelhoraMax / 10 /,
-    s_epsRedCost        / 1e-6 /, s_lastCusto / INF /,
+    s_epsRedCost        / 1e-4 /, s_lastCusto / INF /,
     s_tempoMaximoTotal  / 300 /, s_timeStart,
     epsDual             / 1e-9 /;
 Set lenActive(c);
