@@ -2,11 +2,13 @@
 using APSSystem.Core.Services;
 using APSSystem.Core.ValueObjects;
 using APSSystem.Infrastructure.GamsIntegration;
+using APSSystem.Infrastructure.Persistence.ExcelRepositories;
 using APSSystem.Infrastructure.Services;
 using APSSystem.Presentation.WPF.ViewModels;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -59,12 +61,13 @@ namespace APSSystem.Presentation.WPF
             services.AddTransient<APSSystem.Application.Interfaces.IExcelDataService, APSSystem.Infrastructure.Services.ExcelDataService>();
             services.AddTransient<APSSystem.Core.Interfaces.IRecursoRepository, APSSystem.Infrastructure.Persistence.ExcelRepositories.ExcelRecursoRepository>();
             services.AddTransient<APSSystem.Core.Interfaces.ICalendarioRepository, APSSystem.Infrastructure.Persistence.InMemoryRepositories.InMemoryCalendarioRepository>();
-            services.AddTransient<APSSystem.Core.Interfaces.IItemDeInventarioRepository, APSSystem.Infrastructure.Persistence.InMemoryRepositories.InMemoryItemDeInventarioRepository>();
+            services.AddTransient<APSSystem.Core.Interfaces.IItemDeInventarioRepository, APSSystem.Infrastructure.Persistence.ExcelRepositories.ExcelItemDeInventarioRepository>();
             services.AddTransient<APSSystem.Core.Interfaces.INecessidadeDeProducaoRepository, APSSystem.Infrastructure.Persistence.InMemoryRepositories.InMemoryNecessidadeDeProducaoRepository>();
             services.AddTransient<APSSystem.Core.Interfaces.IOrdemClienteRepository, APSSystem.Infrastructure.Persistence.InMemoryRepositories.InMemoryOrdemClienteRepository>();
-            services.AddTransient<APSSystem.Core.Interfaces.IProdutoRepository, APSSystem.Infrastructure.Persistence.InMemoryRepositories.InMemoryProdutoRepository>();
-            //services.AddTransient<APSSystem.Core.ValueObjects.ParametrosDeCalculoDeCarga>();
-            //services.AddTransient<APSSystem.Core.Services.ICalculadoraDeCargaService>();
+            services.AddTransient<APSSystem.Core.Interfaces.IProdutoRepository, APSSystem.Infrastructure.Persistence.ExcelRepositories.ExcelProdutoRepository>();
+            services.AddTransient<APSSystem.Core.Interfaces.IOrdemClienteRepository, APSSystem.Infrastructure.Persistence.ExcelRepositories.ExcelOrdemClienteRepository>();
+            services.AddTransient<APSSystem.Core.ValueObjects.ParametrosDeCalculoDeCarga>();
+            services.AddTransient<APSSystem.Core.Services.ICalculadoraDeCargaService>();
             // (Adicione outros registros explícitos aqui se necessário)
 
             // ViewModels e Windows
@@ -77,11 +80,15 @@ namespace APSSystem.Presentation.WPF
             // Removemos o registro "hardcoded" e ativamos o registro a partir da configuração
             //TryRegisterParametrosDeCalculoDeCargaFromConfig(services, configuration);
             // Registro do Value Object a partir de appsettings
-            services.AddSingleton<APSSystem.Core.ValueObjects.ParametrosDeCalculoDeCarga>(sp =>
-            {
-                var cfg = sp.GetRequiredService<IConfiguration>().GetSection("ParametrosDeCalculoDeCarga");
-                return BindValueObjectFromConfig<APSSystem.Core.ValueObjects.ParametrosDeCalculoDeCarga>(cfg);
-            });
+            //services.AddSingleton<APSSystem.Core.ValueObjects.ParametrosDeCalculoDeCarga>(sp =>
+            //{
+            //    var cfg = sp.GetRequiredService<IConfiguration>().GetSection("ParametrosDeCalculoDeCarga");
+            //    return BindValueObjectFromConfig<APSSystem.Core.ValueObjects.ParametrosDeCalculoDeCarga>(cfg);
+            //});
+
+            services.AddSingleton<APSSystem.Core.Services.ICalculadoraDeCargaService,APSSystem.Core.Services.CalculadoraDeCargaService>();
+
+
 
             serviceProvider = services.BuildServiceProvider();
 
