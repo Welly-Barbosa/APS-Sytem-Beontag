@@ -1,63 +1,59 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
 	<PropertyGroup>
+		<!-- Este projeto é um APLICATIVO WPF (não biblioteca) -->
 		<OutputType>WinExe</OutputType>
+
+		<!-- TFM correto para WPF no .NET 8 -->
 		<TargetFramework>net8.0-windows</TargetFramework>
+
+		<!-- Habilita WPF -->
+		<UseWPF>true</UseWPF>
+
+		<!-- Qualidade de código -->
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<UseWPF>true</UseWPF>
-		<AssemblyName>APSSystem.Presentation.WPF</AssemblyName>
-		<RootNamespace>APSSystem.Presentation.WPF</RootNamespace>
+
+		<!-- Se estiver compilando em um SDK mais novo (9.x) e faltar targeting, descomente: -->
+		<!-- <EnableWindowsTargeting>true</EnableWindowsTargeting> -->
 	</PropertyGroup>
+
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<ProjectReference Include="..\Application\Application.csproj" />
-		<ProjectReference Include="..\Core\Core.csproj" />
-		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
-		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc2" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+		<!-- Configuração -->
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.1" />
+
+		<!-- DICA: Removi o Binder aqui para evitar "package downgrade".
+         Ele virá TRANSITIVAMENTE do Infrastructure (8.0.1) e o cfg.Bind(...) continua funcionando.
+         Se preferir fixar, use exatamente 8.0.1. -->
+		<!-- <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" /> -->
+
+		<!-- DI + Logging -->
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+
+		<!-- MediatR -->
+		<PackageReference Include="MediatR" Version="12.2.0" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.0" />
 	</ItemGroup>
 	
+	<!-- REMOVA QUALQUER <Reference Include="Application"> ou "Infrastructure" com HintPath para bin -->
+	<!-- Use ProjectReference para construir os projetos dependentes antes do WPF -->
+	<ItemGroup>
+		<ProjectReference Include="..\Core\Core.csproj" />
+		<ProjectReference Include="..\Application\Application.csproj" />
+		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+	</ItemGroup>
+
+	<!-- Garante que appsettings.json vai para a pasta de saída -->
 	<ItemGroup>
 		<None Include="appsettings.json">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Data\Antecipacao\Inventario.xlsx">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\Antecipacao\OrdensDeCliente.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\Antecipacao\Recursos.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\Backlog\Inventario.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\Backlog\OrdensDeCliente.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\Backlog\Recursos.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\CenarioAntecipacao\Inventario.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\CenarioAntecipacao\OrdensDeCliente.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\CenarioAntecipacao\Recursos.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\CenarioBacklog\Inventario.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\CenarioBacklog\OrdensDeCliente.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Data\CenarioBacklog\Recursos.xlsx">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<!-- Se tiver appsettings.Development.json etc., repita o bloco -->
 	</ItemGroup>
 
 </Project>
