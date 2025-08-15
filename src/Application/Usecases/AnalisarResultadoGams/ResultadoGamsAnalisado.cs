@@ -22,16 +22,17 @@ public class ResultadoGamsAnalisado
 /// Representa a visão de uma Ordem de Cliente e seu status final.
 /// </summary>
 public record ItemDePlanoDetalhado(
-    string NumeroOrdemCliente,
-    string PN_Base,
-    decimal LarguraProduto,
-    decimal CompProduto,
-    DateTime DataEntregaRequerida,
-    decimal QtdDemandada,
-    DateTime? DataProducaoReal,
-    int DiasDesvio,
-    string StatusEntrega
+    string CustomerOrderNumber,
+    string Product,
+    decimal Length,
+    decimal CuttingWidth,
+    DateTime RequiredDate,
+    int? RequiredQuantity,
+    DateTime? PlannedDate,
+    int? Deviation,
+    string Status
 );
+
 
 /// <summary>
 /// Representa uma Ordem de Produção com seu padrão de corte e perda calculada.
@@ -39,8 +40,9 @@ public record ItemDePlanoDetalhado(
 public record ItemOrdemProducao(
     DateTime DataProducao,
     string Maquina,
-    string PadraoCorte,
-    decimal QtdBobinasMae,
-    string ComposicaoDoCorte, // Ex: "3x PROD-A-10, 2x PROD-B-15"
-    decimal PerdaMaterialPercentual
+    string JobNumber,
+    decimal Length,
+    int? QtdBobinasMae,
+    string Composition,
+    decimal WastePercentage
 );

@@ -7,6 +7,8 @@
         d:DataContext="{d:DesignInstance Type=viewModels:ResultadosOtimizacaoViewModel, IsDesignTimeCreatable=False}"
         mc:Ignorable="d"
         Title="Optimization Results Analysis" Height="800" Width="1400" WindowStartupLocation="CenterOwner" FontSize="14">
+
+    
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -46,29 +48,36 @@
 
         <Grid Grid.Row="3" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="841*"/>
+                <ColumnDefinition Width="529*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="SemiBold" Padding="5">
+            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="SemiBold" Padding="5" Margin="0,0,90,0">
                 <DataGrid ItemsSource="{Binding PlanoCliente}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Order #" Binding="{Binding NumeroOrdemCliente}" Width="*"/>
-                        <DataGridTextColumn Header="Product" Binding="{Binding PN_Base}" Width="*"/>
-                        <DataGridTextColumn Header="Required Date" Binding="{Binding DataEntregaRequerida, StringFormat=d}" Width="*"/>
-                        <DataGridTextColumn Header="Planned Date" Binding="{Binding DataProducaoReal, StringFormat=d}" Width="*"/>
-                        <DataGridTextColumn Header="Deviation" Binding="{Binding DiasDesvio}" Width="Auto"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding StatusEntrega}" Width="*" FontWeight="Bold"/>
+                        <DataGridTextColumn Header="Cust.Order #" Binding="{Binding CustomerOrderNumber}"/>
+                        <DataGridTextColumn Header="Product" Binding="{Binding Product}"/>
+                        <DataGridTextColumn Header="Length" Binding="{Binding Length}"/>
+                        <DataGridTextColumn Header="Cutting Width" Binding="{Binding CuttingWidth}"/>
+                        <DataGridTextColumn Header="Req. Date" Binding="{Binding RequiredDate, StringFormat=d}"/>
+                        <DataGridTextColumn Header="Req. Qty" Binding="{Binding RequiredQuantity}"/>
+                        <DataGridTextColumn Header="Planned Date" Binding="{Binding PlannedDate, StringFormat=d}"/>
+                        <DataGridTextColumn Header="Deviation" Binding="{Binding Deviation}"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}"/>
                     </DataGrid.Columns>
+
                 </DataGrid>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Production Orders (by Cutting Pattern)" FontWeight="SemiBold" Padding="5" Margin="10,0,0,0">
+            <GroupBox Header="Production Orders (by Cutting Pattern)" FontWeight="SemiBold" Padding="5" Margin="751,0,0,0" Grid.ColumnSpan="2">
                 <DataGrid ItemsSource="{Binding PlanoProducao}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Pattern" Binding="{Binding PadraoCorte}" Width="*"/>
-                        <DataGridTextColumn Header="Composition" Binding="{Binding ComposicaoDoCorte}" Width="2*"/>
-                        <DataGridTextColumn Header="Waste %" Binding="{Binding PerdaMaterialPercentual, StringFormat=P2}" Width="*"/>
+                        <DataGridTextColumn Header="Job #" Binding="{Binding JobNumber}"/>
+                        <DataGridTextColumn Header="Machine" Binding="{Binding Maquina}"/>
+                        <DataGridTextColumn Header="Prod.Date" Binding="{Binding DataProducao, StringFormat=d}"/>
+                        <DataGridTextColumn Header="Length" Binding="{Binding Length}"/>
+                        <DataGridTextColumn Header="Composition" Binding="{Binding Composition}" Width="2*"/>
+                        <DataGridTextColumn Header="Waste %" Binding="{Binding WastePercentage, StringFormat=P2}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>

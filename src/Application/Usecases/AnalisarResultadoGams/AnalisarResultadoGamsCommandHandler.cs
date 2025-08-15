@@ -13,6 +13,7 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
 {
     private readonly IGamsOutputParser _gamsParser;
     private readonly ICalculadoraDePerdaService _calculadoraDePerda;
+    // Futuramente, injetaremos o repositório de NecessidadeDeProducao para a rastreabilidade
 
     public AnalisarResultadoGamsCommandHandler(IGamsOutputParser gamsParser, ICalculadoraDePerdaService calculadoraDePerda)
     {
@@ -22,70 +23,83 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
 
     public async Task<ResultadoGamsAnalisado> Handle(AnalisarResultadoGamsCommand request, CancellationToken cancellationToken)
     {
-        // 1. Usa o parser para ler os dados brutos dos arquivos de resultado
         var dadosGams = await _gamsParser.ParseAsync(request.CaminhoPastaJob);
-
-        // 2. Implementa a nova lógica: Calcular os KPIs globais
         var perdaPorPadrao = _calculadoraDePerda.CalcularPerdaPorPadrao(dadosGams.PlanoDeProducao, dadosGams.ComposicaoDosPadroes);
 
-        // 3. Monta a lista de Ordens de Produção para a tabela, juntando com a composição e a perda
-        var planoProducao = (from plano in dadosGams.PlanoDeProducao
-                             join comp in dadosGams.ComposicaoDosPadroes on plano.PadraoCorte equals comp.PadraoCorte into comps
-                             let composicaoFormatada = string.Join(", ", comps.Select(c => $"{c.QtdPorBobinaMae}x {c.PN_Base}-{c.LarguraProduto}"))
-                             select new ItemOrdemProducao(
-                                 plano.DataProducao,
-                                 plano.Maquina,
-                                 plano.PadraoCorte,
-                                 plano.QtdBobinasMae,
-                                 composicaoFormatada,
-                                 perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
-                             )).ToList();
+        // Agrupa as composições por padrão de corte para a nova formatação
+        var composicaoAgrupada = dadosGams.ComposicaoDosPadroes
+            .GroupBy(c => c.PadraoCorte)
+            .ToDictionary(g => g.Key, g => string.Join(" / ", g.Select(item => $"{item.QtdPorBobinaMae:F0}x{item.PN_Base}>{item.LarguraProduto}")));
 
-        // 4. Monta a lista de status de Ordens de Cliente para a outra tabela
+        var planoProducao = dadosGams.PlanoDeProducao
+            .Select(plano => new ItemOrdemProducao(
+                DataProducao: plano.DataProducao,
+                Maquina: plano.Maquina,
+                QtdBobinasMae: (int)plano.QtdBobinasMae,
+                JobNumber: plano.PadraoCorte, // Job # é o PadraoCorte
+                Length: dadosGams.ComposicaoDosPadroes.FirstOrDefault(c => c.PadraoCorte == plano.PadraoCorte)?.CompProduto ?? 0,
+                Composition: composicaoAgrupada.GetValueOrDefault(plano.PadraoCorte, ""),
+                WastePercentage: perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
+            )).ToList();
+
         var planoCliente = dadosGams.StatusDasEntregas
             .Select(status => new ItemDePlanoDetalhado(
-                "N/A", // O NumeroOrdem original precisaria ser buscado do IOrdemClienteRepository
-                status.PN_Base,
-                status.LarguraProduto,
-                status.CompProduto,
-                status.DataEntregaRequerida,
-                status.QtdDemandada,
-                status.DataProducaoReal,
-                status.DiasDesvio,
-                TraduzirStatus(status.StatusEntrega, status.DiasDesvio)
-            ))
-            .OrderBy(p => p.DataEntregaRequerida)
-            .ToList();
+                CustomerOrderNumber: "N/A", // Placeholder para rastreabilidade
+                Product: status.PN_Base,
+                Length: status.CompProduto,
+                CuttingWidth: status.LarguraProduto,
+                RequiredDate: status.DataEntregaRequerida,
+                RequiredQuantity: (int)status.QtdDemandada,
+                PlannedDate: status.DataProducaoReal,
+                Deviation: status.DiasDesvio,
+                Status: TraduzirStatus(status.StatusEntrega, status.DiasDesvio)
+            )).ToList();
 
-        // 5. Calcula os KPIs de alto nível
-        var totalOrdens = planoCliente.Count;
-        var ordensNoPrazo = planoCliente.Count(p => p.StatusEntrega == "On Time");
-        var fulfillment = totalOrdens > 0 ? (decimal)ordensNoPrazo / totalOrdens : 0;
+        //var fulfillment = planoCliente.Any() ? (decimal)(planoCliente.Count - planoCliente.Count(p => p.Status == "On Time" || p.Status == "Antecipated")) / planoCliente.Count : 0;
+        //var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
+
+        // 1. Calcula o Order Fulfillment conforme a nova regra
+        //var totalOrdens = planoCliente.Count;
+        // Conta as ordens que não estão atrasadas (desvio <= 0) e foram planejadas (Status > 0)
+        //var ordensAtendidasSemAtraso = planoCliente.Count(p => (p.Deviation ?? 0) <= 0 && p.Status != "Not Planned");
+        //var fulfillment = totalOrdens > 0 ? (decimal)ordensAtendidasSemAtraso / totalOrdens : 0;
+
+        // 2. Calcula a média de perda de material (lógica existente mantida por ser a correta para "Waste")
         var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
+
+        // Cálculo do Order Fulfillment
+        var totalOrdensCliente = (decimal)planoCliente.Count;
+        var ordensComAtraso = (decimal)planoCliente.Count(p => p.Deviation.HasValue && p.Deviation > 0);
+        var fulfillment = totalOrdensCliente > 0
+            ? (totalOrdensCliente - ordensComAtraso) / totalOrdensCliente
+            : 0;
+
+        // Cálculo do Average Waste %
+        //var totalOrdensProducao = (decimal)planoProducao.Count;
+        //var somaDasPerdas = planoProducao.Sum(p => p.WastePercentage);
+        //var perdaMedia = totalOrdensProducao > 0
+        //    ? somaDasPerdas / totalOrdensProducao
+         //   : 0;
+
 
         return new ResultadoGamsAnalisado
         {
             PlanoCliente = planoCliente,
             PlanoProducao = planoProducao,
-            OrderFulfillmentPercentage = fulfillment * 100, // em percentual
-            AverageWastePercentage = perdaMedia * 100, // em percentual
-            // O cálculo de Perda em Polegadas precisaria de mais detalhes, omitido por enquanto
+            OrderFulfillmentPercentage = fulfillment, //* 100,
+            AverageWastePercentage = perdaMedia, // * 100,
         };
     }
 
-    /// <summary>
-    /// Traduz o status numérico do GAMS para uma string legível,
-    /// usando a nova regra de negócio baseada em DiasDesvio.
-    /// </summary>
     private string TraduzirStatus(int statusGams, int? diasDesvio)
     {
         if (statusGams > 0)
         {
-            if (diasDesvio == 0)
+            if (diasDesvio == 0 || diasDesvio == -1)
             {
                 return "On Time";
             }
-            if (diasDesvio < 0)
+            if (diasDesvio < -1)
             {
                 return "Antecipated";
             }
