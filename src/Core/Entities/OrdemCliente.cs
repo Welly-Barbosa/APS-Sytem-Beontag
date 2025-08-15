@@ -18,9 +18,15 @@ public record OrdemCliente(
     DateTime DataEntrega,
     decimal LarguraCorte) // <-- NOVA PROPRIEDADE
 {
-    // --- NOVA PROPRIEDADE ADICIONADA PARA A UI ---
+    // --- NOVA PROPRIEDADE ADICIONADA AQUI ---
     /// <summary>
-    /// Fornece uma representação em string do Part Number para facilitar o binding e a ordenação na UI.
+    /// Retorna uma representação em texto do Part Number efetivo,
+    /// usando a LarguraCorte específica desta ordem. Usado apenas para exibição.
     /// </summary>
-    public string ItemRequisitadoDisplay => ItemRequisitado.ToString();
+    public string PartNumberEfetivoDisplay =>
+        new PartNumber(
+            this.ItemRequisitado.PN_Generico,
+            this.LarguraCorte,
+            this.ItemRequisitado.Comprimento
+        ).ToString();
 }

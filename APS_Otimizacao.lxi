@@ -1,91 +1,402 @@
 B 3 C o m p i l a t i o n
-B 983 Include File Summary
-B 995 E x e c u t i o n
-I 997 "[AUDITORIA..."
-I 998 s_tempoTotalDisponivel
-I 1000 "[AUDITORIA..."
-I 1001 s_tempoTotalRequerido
-I 1003 "[INFO] Usa..."
-B 1007 Range Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
-B 1018 Model Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
-B 1038 Solution Report     SOLVE CorteMestre_RMIP Using RMIP From line 792
-B 1077 E x e c u t i o n
-I 1079 "[MONITORAM..."
-I 1080 z_custoTotal
-B 1084 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1095 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1117 Solution Report     SOLVE GeraPadrao Using MIP From line 804
-B 1166 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1177 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1199 Solution Report     SOLVE GeraPadrao Using MIP From line 804
-B 1248 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1259 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1281 Solution Report     SOLVE GeraPadrao Using MIP From line 804
-B 1330 Range Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
-B 1341 Model Statistics    SOLVE CorteMestre_RMIP Using RMIP From line 792
-B 1361 Solution Report     SOLVE CorteMestre_RMIP Using RMIP From line 792
-B 1400 E x e c u t i o n
-I 1402 "[MONITORAM..."
-I 1403 z_custoTotal
-B 1407 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1418 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1440 Solution Report     SOLVE GeraPadrao Using MIP From line 804
-B 1489 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1500 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1522 Solution Report     SOLVE GeraPadrao Using MIP From line 804
-B 1571 Range Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1582 Model Statistics    SOLVE GeraPadrao Using MIP From line 804
-B 1604 Solution Report     SOLVE GeraPadrao Using MIP From line 804
-B 1653 E x e c u t i o n
-I 1655 "[INFO] Res..."
-B 1659 Range Statistics    SOLVE CorteMestre_Final Using MIP From line 840
-B 1670 Model Statistics    SOLVE CorteMestre_Final Using MIP From line 840
-B 1683 Solution Report     SOLVE CorteMestre_Final Using MIP From line 840
-F 1730 eq_objetivo
-F 1732 eq_atendeDemanda
-F 1802 eq_calculaAtraso
-F 1916 eq_capacidade
-F 1945 eq_preencheCapacidade
-G 1953 v_usaPadrao
-G 241934 v_excedente
-G 242004 v_diasAtraso
-G 242118 v_falta
-G 242190 z_custoTotal
-B 242200 E x e c u t i o n
-I 242202 "EXECUCAO C..."
-I 242203 z_custoTotal
-I 242205 "==========..."
-I 242207 "========= ..."
-I 242209 "==========..."
-I 242211 "[1] SUMARI..."
-I 242213 "   - Statu..."
-I 242214 CorteMestre_Final
-I 242216 "   - Statu..."
-I 242217 CorteMestre_Final
-I 242219 "   - Custo..."
-I 242220 z_custoTotal
-I 242222 "   - Numer..."
-I 242223 s_contadorPadroes
-I 242225 "[2] COMPOS..."
-I 242227 "   - Custo..."
-I 242228 s_rel_custoProducao
-I 242230 "   - Custo..."
-I 242231 s_rel_custoAtraso
-I 242233 "   - Custo..."
-I 242234 s_rel_custoExcedente
-I 242236 "   - Custo..."
-I 242237 s_rel_custoFalta
-I 242239 "[3] ATENDI..."
-I 242241 "   - Itens..."
-I 242242 v_falta
-I 242248 "   - Itens..."
-I 242249 v_excedente
-I 242303 "[4] UTILIZ..."
-I 242305 "   (Apenas..."
-I 242306 p_rel_percUtilizacao
-I 242316 "[5] PLANO ..."
-I 242318 "   (Mostra..."
-I 242319 v_usaPadrao
-I 242392 "==========..."
-I 242394 "==========..."
-I 242396 "==========..."
+B 848 Include File Summary
+B 860 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 871 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 889 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 928 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 939 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 957 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1000 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1011 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1029 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1068 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1079 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1097 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1140 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1151 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1169 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1208 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1219 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1237 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1280 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1291 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1309 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1348 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1359 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1377 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1420 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1431 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1449 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1488 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1499 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1517 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1560 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1571 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1589 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1628 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1639 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1657 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1700 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1711 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1729 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1768 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1779 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1797 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1840 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1851 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1869 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 1908 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1919 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 1937 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 1980 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 1991 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2009 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2048 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2059 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2077 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2120 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2131 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2149 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2188 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2199 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2217 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2260 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2271 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2289 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2328 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2339 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2357 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2400 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2411 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2429 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2468 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2479 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2497 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2540 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2551 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2569 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2608 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2619 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2637 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2680 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2691 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2709 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2748 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2759 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2777 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2820 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2831 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2849 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 2888 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2899 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 2917 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 2960 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2971 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 2989 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3028 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3039 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3057 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3100 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3111 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3129 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3168 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3179 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3197 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3240 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3251 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3269 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3308 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3319 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3337 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3380 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3391 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3409 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3448 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3459 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3477 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3520 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3531 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3549 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3588 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3599 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3617 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3660 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3671 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3689 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3728 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3739 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3757 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3800 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3811 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3829 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 3868 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3879 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 3897 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 3940 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3951 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 3969 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4008 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4019 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4037 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4080 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4091 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4109 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4148 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4159 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4177 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4220 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4231 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4249 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4288 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4299 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4317 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4360 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4371 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4389 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4428 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4439 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4457 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4500 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4511 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4529 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4568 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4579 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4597 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4640 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4651 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4669 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4708 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4719 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4737 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4780 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4791 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4809 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4848 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4859 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4877 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 4920 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4931 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 4949 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 4988 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 4999 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5017 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5060 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5071 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5089 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5128 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5139 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5157 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5200 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5211 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5229 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5268 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5279 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5297 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5340 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5351 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5369 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5408 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5419 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5437 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5480 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5491 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5509 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5548 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5559 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5577 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5620 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5631 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5649 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5688 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5699 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5717 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5760 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5771 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5789 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5828 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5839 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5857 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 5900 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5911 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 5929 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 5968 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5979 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 5997 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6040 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6051 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6069 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6108 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6119 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6137 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6180 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6191 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6209 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6248 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6259 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6277 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6320 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6331 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6349 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6388 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6399 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6417 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6460 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6471 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6489 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6528 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6539 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6557 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6600 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6611 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6629 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6668 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6679 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6697 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6740 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6751 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6769 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6808 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6819 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6837 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 6880 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6891 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 6909 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 6948 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6959 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 6977 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7020 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7031 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7049 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7088 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7099 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7117 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7160 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7171 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7189 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7228 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7239 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7257 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7300 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7311 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7329 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7368 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7379 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7397 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7440 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7451 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7469 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7508 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7519 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7537 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7580 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7591 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7609 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7648 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7659 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7677 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7720 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7731 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7749 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7788 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7799 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7817 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 7860 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7871 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 7889 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 7928 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7939 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 7957 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8000 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8011 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8029 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8068 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8079 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8097 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8140 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8151 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8169 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8208 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8219 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8237 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8280 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8291 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8309 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8348 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8359 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8377 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8420 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8431 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8449 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8488 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8499 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8517 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8560 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8571 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8589 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8628 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8639 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8657 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8700 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8711 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8729 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8768 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8779 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8797 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8840 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8851 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8869 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 8908 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8919 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 8937 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 8980 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 8991 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9009 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9048 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9059 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9077 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9120 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9131 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9149 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9188 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9199 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9217 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9260 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9271 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9289 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9328 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9339 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9357 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9400 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9411 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9429 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9468 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9479 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9497 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9540 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9551 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9569 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9608 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9619 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9637 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9680 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9691 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9709 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9748 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9759 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9777 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9820 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9831 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9849 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 9888 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9899 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 9917 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 9960 Range Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9971 Model Statistics    SOLVE CorteMestre Using RMIP From line 748
+B 9989 Solution Report     SOLVE CorteMestre Using RMIP From line 748
+B 10028 Range Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 10039 Model Statistics    SOLVE GeraPadrao Using MIP From line 759
+B 10057 Solution Report     SOLVE GeraPadrao Using MIP From line 759
+B 10100 Range Statistics    SOLVE CorteMestre Using MIP From line 779
+B 10111 Model Statistics    SOLVE CorteMestre Using MIP From line 779
+B 10124 Solution Report     SOLVE CorteMestre Using MIP From line 779
+B 10175 E x e c u t i o n

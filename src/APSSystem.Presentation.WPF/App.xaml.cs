@@ -55,10 +55,11 @@ public partial class App : System.Windows.Application
         services.AddTransient<AlocacaoInventarioService>();
         services.AddTransient<ICalculadoraDeCargaService, CalculadoraDeCargaService>();
         services.AddTransient<ICalculadoraDePerdaService, CalculadoraDePerdaService>();
+        services.AddTransient<IGamsOutputParser, GamsOutputParser>();
 
         services.AddSingleton(new ParametrosDeCalculoDeCarga(
             LarguraBobinaMae: 78.74m, FatorDePerda: 1.05m,
-            TempoProcessamentoBobina10k: 60, TempoProcessamentoBobina15k: 90,
+            TempoProcessamentoBobina10k: 10, TempoProcessamentoBobina15k: 15,
             TempoSetupPorBobina: 15, LarguraBobinaMaeGams: 78.74m));
 
         services.AddSingleton<MainWindow>();

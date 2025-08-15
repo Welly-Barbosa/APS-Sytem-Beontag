@@ -52,7 +52,7 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
                 status.QtdDemandada,
                 status.DataProducaoReal,
                 status.DiasDesvio,
-                TraduzirStatus(status.StatusEntrega)
+                TraduzirStatus(status.StatusEntrega, status.DiasDesvio)
             ))
             .OrderBy(p => p.DataEntregaRequerida)
             .ToList();
@@ -73,10 +73,28 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
         };
     }
 
-    private string TraduzirStatus(int statusGams) => statusGams switch
+    /// <summary>
+    /// Traduz o status numérico do GAMS para uma string legível,
+    /// usando a nova regra de negócio baseada em DiasDesvio.
+    /// </summary>
+    private string TraduzirStatus(int statusGams, int? diasDesvio)
     {
-        0 => "On Time",
-        -1 => "Late / Not Planned",
-        _ => "Unknown"
-    };
+        if (statusGams > 0)
+        {
+            if (diasDesvio == 0)
+            {
+                return "On Time";
+            }
+            if (diasDesvio < 0)
+            {
+                return "Antecipated";
+            }
+            // Se DiasDesvio for > 0, ainda é considerado "Late", mesmo que planejado.
+            return "Late";
+        }
+        else
+        {
+            return "Not Planned"; // Simplificado para "Not Planned" quando não atendido.
+        }
+    }
 }

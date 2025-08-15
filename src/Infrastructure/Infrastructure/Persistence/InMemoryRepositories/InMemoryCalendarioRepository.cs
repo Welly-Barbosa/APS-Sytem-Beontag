@@ -16,7 +16,7 @@ public class InMemoryCalendarioRepository : ICalendarioRepository
     {
         // --- Calendário 1: O calendário padrão 5x8 que já tínhamos ---
         var cal5x8 = new Calendario("CAL-PADRAO-5x8", "Calendário Padrão 5x8 (Seg-Sex, 08:00-12:00 e 13:00-17:00)");
-        var dias5x8 = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
+        var dias5x8 = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday };
         foreach (var dia in dias5x8)
         {
             cal5x8.AdicionarTurno(new Turno(dia, new TimeOnly(8, 0), new TimeOnly(12, 0)));
@@ -27,7 +27,7 @@ public class InMemoryCalendarioRepository : ICalendarioRepository
 
         // --- Calendário 2: O novo calendário de 3 turnos (24x5) ---
         var cal24x5 = new Calendario("CAL-24x5", "Calendário de Produção Contínua (3 Turnos, Seg-Sex)");
-        var dias24x5 = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday };
+        var dias24x5 = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday };
 
         foreach (var dia in dias24x5)
         {

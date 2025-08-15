@@ -71,7 +71,7 @@
         <DataGrid Grid.Row="4" ItemsSource="{Binding OrdensParaExibir}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Order Number" Binding="{Binding NumeroOrdem}" Width="*"/>
-                <DataGridTextColumn Header="Part Number" Binding="{Binding ItemRequisitadoDisplay}" Width="2*"/>
+                <DataGridTextColumn Header="Part Number" Binding="{Binding PartNumberEfetivoDisplay}" Width="2*"/>
                 <DataGridTextColumn Header="Length" Binding="{Binding ItemRequisitado.Comprimento}" Width="*"/>
                 <DataGridTextColumn Header="Quantity" Binding="{Binding Quantidade}" Width="*"/>
                 <DataGridTextColumn Header="Cutting Width" Binding="{Binding LarguraCorte}" Width="*"/>

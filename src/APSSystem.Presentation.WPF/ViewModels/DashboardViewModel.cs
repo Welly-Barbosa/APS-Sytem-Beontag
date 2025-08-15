@@ -90,7 +90,7 @@ public class DashboardViewModel : ViewModelBase
         Series = new ObservableCollection<ISeries>();
         OrdensParaExibir = new ObservableCollection<OrdemCliente>();
         XAxes = new Axis[] { new Axis { Name = "Days", LabelsRotation = 15, Labels = new string[0], SeparatorsPaint = new SolidColorPaint(SKColors.LightGray) { StrokeThickness = 1 } } };
-        YAxes = new Axis[] { new Axis { Name = "Time (Minutes)", MinLimit = 0, MaxLimit = 5000 } };
+        YAxes = new Axis[] { new Axis { Name = "Time (Minutes)", MinLimit = 0 } };
 
         AnalisarCenarioCommand = new RelayCommand(async _ => await ExecutarAnaliseCenario(), _ => IsIdle);
         StartOptimizationCommand = new RelayCommand(async _ => await ExecutarOtimizacao(), _ => IsIdle);
