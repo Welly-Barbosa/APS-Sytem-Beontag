@@ -4,11 +4,39 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:APSSystem.Presentation.WPF.ViewModels"
+        xmlns:converters="clr-namespace:APSSystem.Presentation.WPF.Converters"
         d:DataContext="{d:DesignInstance Type=viewModels:ResultadosOtimizacaoViewModel, IsDesignTimeCreatable=False}"
         mc:Ignorable="d"
         Title="Optimization Results Analysis" Height="800" Width="1400" WindowStartupLocation="CenterOwner" FontSize="14">
 
-    
+    <Window.Resources>
+        <converters:WasteToBrushConverter x:Key="WasteToBrushConverter"/>
+        <converters:FulfillmentToBrushConverter x:Key="FulfillmentToBrushConverter"/>
+
+        <Style x:Key="StatusTextStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="On Time">
+                    <Setter Property="Foreground" Value="SeaGreen"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Antecipated">
+                    <Setter Property="Foreground" Value="Orange"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Late">
+                    <Setter Property="Foreground" Value="Red"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Not Planned">
+                    <Setter Property="Foreground" Value="Purple"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="WasteTextStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{Binding WastePercentage, Converter={StaticResource WasteToBrushConverter}}"/>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -26,16 +54,26 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" BorderBrush="SeaGreen" BorderThickness="2" CornerRadius="3" Padding="10">
+
+            <Border Grid.Column="0" 
+                    BorderBrush="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}" 
+                    BorderThickness="2" CornerRadius="3" Padding="10">
                 <StackPanel>
                     <TextBlock Text="Order Fulfillment" Foreground="Gray" FontSize="16"/>
-                    <TextBlock Text="{Binding OrderFulfillment, StringFormat={}{0:P2}}" FontSize="28" FontWeight="Bold" Foreground="SeaGreen"/>
+                    <TextBlock Text="{Binding OrderFulfillment, StringFormat={}{0:P2}}" 
+                               FontSize="28" FontWeight="Bold" 
+                               Foreground="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}"/>
                 </StackPanel>
             </Border>
-            <Border Grid.Column="1" BorderBrush="Tomato" BorderThickness="2" CornerRadius="3" Padding="10" Margin="10,0,10,0">
+
+            <Border Grid.Column="1" 
+                    BorderBrush="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}" 
+                    BorderThickness="2" CornerRadius="3" Padding="10" Margin="10,0,10,0">
                 <StackPanel>
                     <TextBlock Text="Average Waste %" Foreground="Gray" FontSize="16"/>
-                    <TextBlock Text="{Binding AverageWaste, StringFormat={}{0:P2}}" FontSize="28" FontWeight="Bold" Foreground="Tomato"/>
+                    <TextBlock Text="{Binding AverageWaste, StringFormat={}{0:P2}}" 
+                               FontSize="28" FontWeight="Bold" 
+                               Foreground="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -52,7 +90,7 @@
                 <ColumnDefinition Width="529*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="SemiBold" Padding="5" Margin="0,0,90,0">
+            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="Regular" Padding="5" Margin="0,0,90,0">
                 <DataGrid ItemsSource="{Binding PlanoCliente}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Cust.Order #" Binding="{Binding CustomerOrderNumber}"/>
@@ -63,13 +101,20 @@
                         <DataGridTextColumn Header="Req. Qty" Binding="{Binding RequiredQuantity}"/>
                         <DataGridTextColumn Header="Planned Date" Binding="{Binding PlannedDate, StringFormat=d}"/>
                         <DataGridTextColumn Header="Deviation" Binding="{Binding Deviation}"/>
-                        <DataGridTextColumn Header="Status" Binding="{Binding Status}"/>
-                    </DataGrid.Columns>
 
+                        <DataGridTemplateColumn Header="Status">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Status}" Style="{StaticResource StatusTextStyle}" Padding="4 0" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>
 
-            <GroupBox Header="Production Orders (by Cutting Pattern)" FontWeight="SemiBold" Padding="5" Margin="751,0,0,0" Grid.ColumnSpan="2">
+            <GroupBox Header="Production Orders (by Cutting Pattern)" FontWeight="Regular"  Padding="5" Margin="751,0,0,0" Grid.ColumnSpan="2">
                 <DataGrid ItemsSource="{Binding PlanoProducao}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Job #" Binding="{Binding JobNumber}"/>
@@ -77,7 +122,15 @@
                         <DataGridTextColumn Header="Prod.Date" Binding="{Binding DataProducao, StringFormat=d}"/>
                         <DataGridTextColumn Header="Length" Binding="{Binding Length}"/>
                         <DataGridTextColumn Header="Composition" Binding="{Binding Composition}" Width="2*"/>
-                        <DataGridTextColumn Header="Waste %" Binding="{Binding WastePercentage, StringFormat=P2}"/>
+
+                        <DataGridTemplateColumn Header="Waste %">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding WastePercentage, StringFormat=P2}" Style="{StaticResource WasteTextStyle}" Padding="4 0" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>

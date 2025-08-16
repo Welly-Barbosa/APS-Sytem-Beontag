@@ -6,20 +6,20 @@ using System.Windows.Media;
 namespace APSSystem.Presentation.WPF.Converters
 {
     /// <summary>
-    /// Converte um valor percentual de desperdício (waste) em um Brush de cor apropriado
+    /// Converte um valor percentual de atendimento de pedidos (Order Fulfillment) em um Brush de cor apropriado
     /// para formatação condicional.
     /// A lógica é:
-    /// - Menor que 1.5% -> Verde (Bom)
-    /// - Maior que 5% -> Vermelho (Ruim)
-    /// - Entre 1.5% e 5% -> Laranja (Atenção)
+    /// - Menor que 80% -> Vermelho (Ruim)
+    /// - Maior que 95% -> Verde (Bom)
+    /// - Entre 80% e 95% -> Laranja (Atenção)
     /// </summary>
-    public class WasteToBrushConverter : IValueConverter
+    public class FulfillmentToBrushConverter : IValueConverter
     {
         /// <summary>
-        /// Converte o valor de desperdício para uma cor.
+        /// Converte o valor de atendimento para uma cor.
         /// </summary>
-        /// <param name="value">O valor do binding, esperado ser um double ou decimal representando a porcentagem (ex: 0.05 para 5%).</param>
-        /// <param name="targetType">O tipo de destino (ignorado, sempre será Brush).</param>
+        /// <param name="value">O valor do binding, esperado ser um double ou decimal representando a porcentagem (ex: 0.95 para 95%).</param>
+        /// <param name="targetType">O tipo de destino (ignorado).</param>
         /// <param name="parameter">Parâmetro do conversor (ignorado).</param>
         /// <param name="culture">Informação de cultura (ignorada).</param>
         /// <returns>Um SolidColorBrush correspondente à regra de negócio.</returns>
@@ -27,27 +27,24 @@ namespace APSSystem.Presentation.WPF.Converters
         {
             if (value is not (double or decimal))
             {
-                return Brushes.Black; // Retorna uma cor padrão se o tipo for inesperado
+                return Brushes.Black; // Cor padrão para tipos inesperados
             }
 
-            var wasteValue = System.Convert.ToDouble(value);
+            var fulfillmentValue = System.Convert.ToDouble(value);
 
-            // Se o valor de desperdício for maior que 5% (0.05), é crítico.
-            if (wasteValue > 0.05)
+            // Se o atendimento for menor que 80% (0.80), é crítico.
+            if (fulfillmentValue < 0.80)
             {
-                // ALTERADO: De Tomato para Red para uma cor mais viva.
                 return Brushes.Red;
             }
-            // Se for menor que 1.5% (0.015), é ótimo.
-            else if (wasteValue < 0.015)
+            // Se for maior que 95% (0.95), é ótimo.
+            else if (fulfillmentValue > 0.95)
             {
-                // ALTERADO: De SeaGreen para Green para uma cor mais viva.
                 return Brushes.Green;
             }
             // Caso contrário, está na faixa de atenção.
             else
             {
-                // MANTIDO: Orange já é uma cor suficientemente viva.
                 return Brushes.Orange;
             }
         }

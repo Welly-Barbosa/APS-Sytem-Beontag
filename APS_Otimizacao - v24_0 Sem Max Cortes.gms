@@ -1,8 +1,8 @@
 * ==============================================================================
 * GAMS Model: Otimizacao de Corte de Bobinas - Beontag
-* Versao: 24.1 - GEEK (Restricao de Cortes Globais)
+* Versao: 24.0 - GEEK (Padrão Dummy Inteligente)
 * Autor: GAMS Geek (Gemini AI)
-* Data: 16 de Agosto de 2025
+* Data: 10 de Agosto de 2025
 *
 * DESCRICAO:
 * Versao final que resolve o erro de inicializacao ($66) usando um
@@ -12,15 +12,9 @@
 * 2. Os duais gerados sao um reflexo puro da demanda, guiando o subproblema
 * a criar o primeiro padrao real de forma otima.
 * 3. O padrao dummy e desativado apos a criacao do primeiro padrao real.
-*
-*-- ALTERADO --*
-* PREMISSA DE SIMPLIFICACAO (PoC):
-* O numero maximo de cortes simultaneos para qualquer padrao de corte e
-* limitado pelo menor valor encontrado entre todas as maquinas no parametro
-* p_maxCortes(j). Esta e uma restricao global para o subproblema.
 * ==============================================================================
 
-$TITLE Otimizacao de Corte de Bobinas - Beontag (v24.1 - Restricao de Cortes)
+$TITLE Otimizacao de Corte de Bobinas - Beontag (v24.0 - Padrao Dummy)
 
 * ------------------------------------------------------------------------------
 * FASE 0: OPCOES GLOBAIS
@@ -32,6 +26,7 @@ Option optcr  = 0.05;
 *Option reslim = 3600;
 Option solPrint = off;
 Option limRow = 0, limCol = 0;
+
 * --- Opcoes especificas para o CPLEX
 $onecho > cplex.opt
 mipemphasis 1
@@ -49,6 +44,7 @@ $INCLUDE 'GamsInputData.dat'
 * ------------------------------------------------------------------------------
 Sets
     pt       'Universo de padroes de corte potenciais' /pt_dummy, Job001*Job999/;
+
 Alias (t, tt, t2, t_prod);
 Alias (pt, pt_new);
 
@@ -58,23 +54,20 @@ p_velocidadeEfetiva(j) = p_velocidadeMaq(j) * p_eficiencia(j);
 
 Parameter p_tempoProcesso(j) 'min por bobina-mae';
 p_tempoProcesso(j)$p_velocidadeEfetiva(j) = s_comprimentoMae_pes / p_velocidadeEfetiva(j);
+
 Parameter p_tempoUsoMaquina(j) 'min por uso na maquina j (setup + processo)';
 p_tempoUsoMaquina(j) = p_tempoSetupBase(j) + p_tempoProcesso(j);
+
 * --- Parametros de Custo e Qualidade ---
 Scalar s_pesoCustoProducao   'Peso do custo de producao (por bobina-mae usada)' / 1 /;
 Scalar W_backlog             'Peso gigante para penalizar o backlog no objetivo' /1e6/;
 Scalar s_pesoCustoRefugo     'Custo de refugo (sobra de largura), para desempate' / 0.1 /;
 Scalar s_minUtilPct_master   'Utilizacao minima para um padrao ser aceito pelo mestre' / 0.97 /;
 
-*-- ADICIONADO --*
-* --- Parametro para a restricao global de cortes (Premissa PoC) ---
-Scalar s_maxCortesGlobal     'Numero maximo de cortes permitido em um padrao';
-s_maxCortesGlobal = smin(j, p_maxCortes(j));
-
-
 Parameters
     p_precoDual(p_base,w,c)         'Preco dual da demanda (para pricing)'
     p_refugoLargura(pt)             'Largura nao utilizada (refugo) do padrao pt';
+
 * Mapeamento de dados dos produtos
 Parameters
     p_larguraPwC(p_base,w,c)    'Largura numerica do produto'
@@ -89,6 +82,7 @@ p_compPwC(p_base,w,c)$(p_comprimentoProduto(p_base,w,c)) = p_comprimentoProduto(
 Parameters
     p_rendimentoPadrao(pt,p_base,w,c) 'Qtd do produto (p,w,c) por padrao pt';
 Set pt_on(pt) 'Padroes ativos que podem ser usados pelo mestre';
+
 * --- Variaveis e Equacoes do Mestre ---
 Variables
     v_usaPadrao(pt, j, t)
@@ -96,6 +90,7 @@ Variables
     v_custoProducao
     v_somaBacklog
     zTotal;
+
 Integer Variable v_usaPadrao;
 Positive Variable Bcum;
 
@@ -105,99 +100,73 @@ Equations
     eq_calcula_custo
     eq_calcula_backlog
     eq_obj_lex;
-*
-* Garante que o tempo total de uso dos padroes em uma maquina j no dia t nao exceda o tempo disponivel.
+
 eq_capacidade(j,t)$(p_tempoDisponivel(j,t) > 0)..
     sum(pt$pt_on(pt), v_usaPadrao(pt,j,t) * p_tempoUsoMaquina(j))
     =l= p_tempoDisponivel(j,t);
 
-*
-* Calcula o backlog (demanda nao atendida) cumulativo para cada produto ate cada dia t.
 eq_backlogCum(p_base,w,c,t)..
     Bcum(p_base,w,c,t) =g=
         sum(t2$(ord(t2) <= ord(t)), p_demanda(p_base,w,c,t2))
       - sum((pt,j,t2)$(ord(t2) <= ord(t)), p_rendimentoPadrao(pt,p_base,w,c) * v_usaPadrao(pt,j,t2));
 
-*
-* Calcula o custo total de producao, somando o custo por bobina-mae usada e uma penalidade pelo refugo de largura.
 eq_calcula_custo..
     v_custoProducao =e=
         s_pesoCustoProducao * sum((pt,j,t)$pt_on(pt), v_usaPadrao(pt,j,t))
       + s_pesoCustoRefugo   * sum((pt,j,t)$pt_on(pt), (p_refugoLargura(pt)/s_larguraMae) * v_usaPadrao(pt,j,t));
 
-*
-* Soma o backlog de todos os produtos em todos os periodos.
 eq_calcula_backlog.. v_somaBacklog =e= sum((p_base,w,c,t), Bcum(p_base,w,c,t));
 
-*
-* Funcao objetivo lexicografica: prioriza minimizar o backlog (com um peso muito alto) e, secundariamente, minimizar o custo de producao.
 eq_obj_lex.. zTotal =e= W_backlog * v_somaBacklog + v_custoProducao;
+
 * --- Modelo Mestre ---
 Model CorteMestre /
     eq_obj_lex, eq_calcula_custo, eq_calcula_backlog,
     eq_backlogCum, eq_capacidade
 /;
+
 * ------------------------------------------------------------------------------
 * --- Subproblema ---
 * ------------------------------------------------------------------------------
 
 Set c_on(c) 'comprimentos ativos no conjunto p';
 c_on(c) = yes$( sum((p_base,w)$p(p_base,w,c), 1) > 0 );
+
 Parameter UmaxCuts(p_base,w,c) 'limite sup. inteiro de cortes por produto no padrao';
 UmaxCuts(p_base,w,c) = 0;
 UmaxCuts(p_base,w,c)$(
     p(p_base,w,c) and p_larguraPwC(p_base,w,c) > 0 and
     p_larguraPwC(p_base,w,c) <= s_larguraMae
 ) = floor(s_larguraMae / p_larguraPwC(p_base,w,c));
+
 Scalar s_minUtilPct 'Target de utilizacao minima de largura por padrao' / 0.97 /;
 
 Variables v_valorPadrao;
 Integer Variable v_geraCorte(p_base,w,c);
 Binary Variable  y_len(c) '1 se o padrao escolhe o comprimento c';
+
 Equations
     eq_sub_objetivo, eq_sub_capacidade, eq_one_len,
-    eq_link_len(p_base,w,c), eq_min_util,
-    eq_sub_max_cortes; 
+    eq_link_len(p_base,w,c), eq_min_util;
 
-*
-* Funcao objetivo do subproblema: maximiza o valor do padrao, que e a soma dos precos duais dos produtos incluidos.
 eq_sub_objetivo..   v_valorPadrao =e= sum((p_base,w,c), p_precoDual(p_base,w,c) * v_geraCorte(p_base,w,c));
-
-*
-* Restricao de capacidade de largura: a soma das larguras dos produtos cortados nao pode exceder a largura da bobina-mae.
 eq_sub_capacidade.. sum((p_base,w,c), p_larguraPwC(p_base,w,c) * v_geraCorte(p_base,w,c)) =l= s_larguraMae;
-
-*
-* Garante que um padrao de corte pode ter produtos de apenas um unico comprimento de bobina-filha.
 eq_one_len..        sum(c$c_on(c), y_len(c)) =e= 1;
 
-*
-* Acopla a variavel de decisao de corte (v_geraCorte) a variavel de escolha de comprimento (y_len). So pode cortar se o comprimento for escolhido.
 eq_link_len(p_base,w,c)$p(p_base,w,c)..
     v_geraCorte(p_base,w,c) =l= UmaxCuts(p_base,w,c) * y_len(c);
 
-*
-* Garante que a utilizacao da largura da bobina-mae seja acima de um percentual minimo para evitar padroes com muito refugo.
 eq_min_util..
     sum((p_base,w,c)$p(p_base,w,c), p_larguraPwC(p_base,w,c) * v_geraCorte(p_base,w,c))
     =g= s_minUtilPct * s_larguraMae * sum(c$c_on(c), y_len(c));
 
-*-- ADICIONADO --*
-*
-* Restricao de numero maximo de cortes: a soma total de itens (cortes) no padrao nao pode exceder o limite minimo global das maquinas.
-eq_sub_max_cortes..
-    sum((p_base,w,c), v_geraCorte(p_base,w,c)) =l= s_maxCortesGlobal;
-
-
 Model GeraPadrao /
     eq_sub_objetivo, eq_sub_capacidade, eq_one_len,
-    eq_link_len, eq_min_util,
-    eq_sub_max_cortes
+    eq_link_len, eq_min_util
 /;
-*-- ALTERADO --*
-
 v_geraCorte.lo(p_base,w,c) = 0;
 v_geraCorte.up(p_base,w,c) = UmaxCuts(p_base,w,c);
+
 * ==============================================================================
 * FASE 3: LOOP DE GERACAO DE COLUNAS
 * ==============================================================================
@@ -268,6 +237,7 @@ WHILE( (s_podeMelhorar = 1) and (s_iter < s_iterMax) and (s_semMelhora < s_semMe
 if (CorteMestre.modelstat = 1 or CorteMestre.modelstat = 8,
     SOLVE CorteMestre using MIP minimizing zTotal;
 );
+
 * ------------------------------------------------------------------------------
 * 4.1 Relatorios de Saida em formato CSV
 * ------------------------------------------------------------------------------
@@ -275,6 +245,7 @@ File
     f_composicao_csv    '/relatorio_composicao_padroes.csv/'
     f_plano_csv         '/relatorio_plano_producao.csv/'
     f_status_csv        '/relatorio_status_entregas.csv/';
+
 * --- Relatorio 1: Composicao dos Padroes Utilizados
 put f_composicao_csv 'PadraoCorte,PN_Base,LarguraProduto,CompProduto,QtdPorBobinaMae' /;
 loop((pt, p_base, w, c)$(p_rendimentoPadrao(pt, p_base, w, c) > 0),
@@ -298,9 +269,11 @@ Parameter
     p_cumDem(p_base,w,c,t)
     p_dataAtende_ord(p_base,w,c,t)
     p_diasDesvio(p_base,w,c,t);
+
 p_prodPorData(p_base,w,c,t) = sum((pt,j), p_rendimentoPadrao(pt,p_base,w,c) * v_usaPadrao.l(pt,j,t));
 p_cumProd(p_base,w,c,t) = sum(tt$(ord(tt) <= ord(t)), p_prodPorData(p_base,w,c,tt));
 p_cumDem(p_base,w,c,t)  = sum(tt$(ord(tt) <= ord(t)), p_demanda(p_base,w,c,tt));
+
 p_dataAtende_ord(p_base,w,c,t) = 0;
 loop((p_base,w,c,t)$(p_demanda(p_base,w,c,t) > 0),
     loop(t2$(p_cumProd(p_base,w,c,t2) >= p_cumDem(p_base,w,c,t) and p_dataAtende_ord(p_base,w,c,t) = 0),
