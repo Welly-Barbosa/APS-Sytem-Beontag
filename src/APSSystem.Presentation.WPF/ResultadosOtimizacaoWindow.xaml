@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:APSSystem.Presentation.WPF.ViewModels"
-        xmlns:converters="clr-namespace:APSSystem.Presentation.WPF.Converters"
+        xmlns:converters="clr-namespace:APSSystem.Presentation.WPF.Converters" xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
         d:DataContext="{d:DesignInstance Type=viewModels:ResultadosOtimizacaoViewModel, IsDesignTimeCreatable=False}"
         mc:Ignorable="d"
         Title="Optimization Results Analysis" Height="800" Width="1400" WindowStartupLocation="CenterOwner" FontSize="14">
@@ -78,10 +78,13 @@
             </Border>
         </Grid>
 
-        <GroupBox Grid.Row="2" Header="Production Gantt Chart" FontWeight="SemiBold">
-            <Border BorderBrush="Gainsboro" BorderThickness="1">
-                <TextBlock Text="Gantt Chart will be displayed here." VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Gray" FontSize="18"/>
-            </Border>
+        <GroupBox Grid.Row="2" Header="Production Gantt Chart (PoC)" FontWeight="SemiBold">
+            <lvc:CartesianChart
+                Sections="{Binding GanttSections}"
+                XAxes="{Binding XAxes}"
+                YAxes="{Binding YAxes}"
+                ZoomMode="X"
+                TooltipPosition="Auto"/>
         </GroupBox>
 
         <Grid Grid.Row="3" Margin="0,10,0,0">
