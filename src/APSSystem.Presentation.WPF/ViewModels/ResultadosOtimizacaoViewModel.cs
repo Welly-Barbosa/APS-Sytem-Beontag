@@ -1,6 +1,7 @@
 ﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
 using MediatR;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +12,6 @@ using WpfApp = System.Windows.Application;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using SkiaSharp;
 
 namespace APSSystem.Presentation.WPF.ViewModels
@@ -62,11 +62,25 @@ namespace APSSystem.Presentation.WPF.ViewModels
 
                 await WpfApp.Current.Dispatcher.InvokeAsync(() =>
                 {
+                    // ALTERAÇÃO: Ordena os dados antes de popular as coleções
+                    var sortedPlanoCliente = resultado.PlanoCliente
+                        .OrderBy(p => p.RequiredDate)
+                        .ThenBy(p => p.Product)
+                        .ThenBy(p => p.Length)
+                        .ThenBy(p => p.CuttingWidth)
+                        .ToList();
+
                     PlanoCliente.Clear();
-                    resultado.PlanoCliente.ForEach(item => PlanoCliente.Add(item));
+                    sortedPlanoCliente.ForEach(item => PlanoCliente.Add(item));
+
+                    var sortedPlanoProducao = resultado.PlanoProducao
+                        .OrderBy(p => p.DataProducao)
+                        .ThenBy(p => p.Maquina)
+                        .ThenBy(p => p.JobNumber)
+                        .ToList();
 
                     PlanoProducao.Clear();
-                    resultado.PlanoProducao.ForEach(item => PlanoProducao.Add(item));
+                    sortedPlanoProducao.ForEach(item => PlanoProducao.Add(item));
 
                     OrderFulfillment = resultado.OrderFulfillmentPercentage;
                     AverageWaste = resultado.AverageWastePercentage;
@@ -86,10 +100,8 @@ namespace APSSystem.Presentation.WPF.ViewModels
                 IsIdle = true;
             }
         }
-
         /// <summary>
-        /// Constrói os dados do gráfico de Gantt (PoC) usando RectangularSections,
-        /// com lógica robusta para garantir a visualização correta.
+        /// Constrói os dados do gráfico de Gantt com lógica de sequenciamento de jobs.
         /// </summary>
         private void BuildGanttChartData()
         {
@@ -102,54 +114,75 @@ namespace APSSystem.Presentation.WPF.ViewModels
                 return;
             }
 
-            var groups = PlanoProducao
-                .GroupBy(p => p.Maquina)
-                .OrderBy(g => g.Key)
+            // 1. ORDENAÇÃO: Ordena a carga de produção conforme a regra de negócio.
+            var sortedJobs = PlanoProducao
+                .OrderBy(p => p.DataProducao)
+                .ThenBy(p => p.Maquina)
                 .ToList();
 
-            var machineLabels = groups.Select(g => g.Key ?? "Unknown").ToArray();
+            var machineLabels = sortedJobs
+                .Select(p => p.Maquina)
+                .Distinct()
+                .OrderBy(m => m)
+                .ToList();
+
+            var machineRowMap = machineLabels.Select((machine, index) => new { machine, index })
+                                             .ToDictionary(m => m.machine, m => m.index);
+
             const double halfHeight = 0.4;
             var random = new Random();
+            var inicioProducao = sortedJobs.First().DataProducao;
 
-            // ALTERAÇÃO: Calcular limites de data para garantir que o gráfico sempre mostre os dados
-            var minDate = PlanoProducao.Min(p => p.DataProducao);
-            var maxDate = PlanoProducao.Max(p => p.DataProducao.AddHours(8)); // Assume duração de 8h
+            // 2. SEQUENCIAMENTO: Dicionário para rastrear o fim do último job em cada máquina.
+            var machineTimelines = machineLabels.ToDictionary(m => m, m => inicioProducao);
 
-            int row = 0;
-            foreach (var group in groups)
+            foreach (var job in sortedJobs)
             {
-                foreach (var job in group.OrderBy(j => j.DataProducao))
-                {
-                    var start = job.DataProducao;
-                    var end = start.AddHours(8); // Duração fixa para PoC
+                // Calcula a duração real do job
+                var duracaoEmHoras = job.QtdBobinasMae * 0.5;
+                var duracao = TimeSpan.FromHours((double)duracaoEmHoras);
 
-                    GanttSections.Add(new RectangularSection
-                    {
-                        Xi = start.ToOADate(),
-                        Xj = end.ToOADate(),
-                        Yi = row - halfHeight,
-                        Yj = row + halfHeight,
-                        Fill = new SolidColorPaint(new SKColor((byte)random.Next(50, 206), (byte)random.Next(50, 206), (byte)random.Next(50, 206), 180)),
-                        Stroke = new SolidColorPaint(SKColors.Black) { StrokeThickness = 1 },
-                        // ALTERAÇÃO: ZIndex e LabelPaint para melhor legibilidade
-                        ZIndex = 2,
-                        Label = job.JobNumber,
-                        LabelPaint = new SolidColorPaint(SKColors.Black)
-                    });
-                }
-                row++;
+                // O job começa quando o último job da máquina terminou.
+                var startTime = machineTimelines[job.Maquina];
+                var endTime = startTime.Add(duracao);
+
+                // Atualiza o tempo de término para a próxima tarefa nesta máquina.
+                machineTimelines[job.Maquina] = endTime;
+
+                GanttSections.Add(new RectangularSection
+                {
+                    Xi = startTime.ToOADate(),
+                    Xj = endTime.ToOADate(),
+                    Yi = machineRowMap[job.Maquina] - halfHeight,
+                    Yj = machineRowMap[job.Maquina] + halfHeight,
+                    Fill = new SolidColorPaint(new SKColor((byte)random.Next(50, 206), (byte)random.Next(50, 206), (byte)random.Next(50, 206), 180)),
+                    Stroke = new SolidColorPaint(SKColors.Black) { StrokeThickness = 1 },
+                    ZIndex = 2,
+                    Label = job.JobNumber,
+                    LabelPaint = new SolidColorPaint(SKColors.Black)
+                });
             }
+
+            // 3. VISUALIZAÇÃO: Cria uma seção de fundo para destacar o primeiro "dia".
+            GanttSections.Add(new RectangularSection
+            {
+                Xi = inicioProducao.ToOADate(),
+                Xj = inicioProducao.AddHours(8).ToOADate(),
+                Fill = new SolidColorPaint(SKColors.LightGray) { ZIndex = -1 }, // ZIndex -1 para ficar no fundo
+                Stroke = null
+            });
+
 
             XAxes = new[]
             {
                 new Axis
                 {
-                    // ALTERAÇÃO: Simplificação do rótulo da data
-                    Labeler = v => DateTime.FromOADate(v).ToString("dd/MM"),
+                    Labeler = v => " ",
                     LabelsRotation = 0,
-                    // ALTERAÇÃO: Definição explícita dos limites do eixo
-                    MinLimit = minDate.AddDays(-1).ToOADate(),
-                    MaxLimit = maxDate.AddDays(1).ToOADate()
+                    // Define a janela de visualização total para 16 horas.
+                    MinLimit = inicioProducao.ToOADate(),
+                    MaxLimit = inicioProducao.AddHours(16).ToOADate(),
+                    UnitWidth = TimeSpan.FromHours(1).Ticks
                 }
             };
 
@@ -160,7 +193,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
                     Labels = machineLabels,
                     IsInverted = true,
                     MinLimit = -0.5,
-                    MaxLimit = machineLabels.Length - 0.5
+                    MaxLimit = machineLabels.Count - 0.5
                 }
             };
         }

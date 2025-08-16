@@ -41,8 +41,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="145*"/>
+            <RowDefinition Height="149*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -59,7 +59,7 @@
                     BorderBrush="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}" 
                     BorderThickness="2" CornerRadius="3" Padding="10">
                 <StackPanel>
-                    <TextBlock Text="Order Fulfillment" Foreground="Gray" FontSize="16"/>
+                    <TextBlock Text="Order Fulfillment" FontWeight="SemiBold" FontSize="16"/>
                     <TextBlock Text="{Binding OrderFulfillment, StringFormat={}{0:P2}}" 
                                FontSize="28" FontWeight="Bold" 
                                Foreground="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}"/>
@@ -70,7 +70,7 @@
                     BorderBrush="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}" 
                     BorderThickness="2" CornerRadius="3" Padding="10" Margin="10,0,10,0">
                 <StackPanel>
-                    <TextBlock Text="Average Waste %" Foreground="Gray" FontSize="16"/>
+                    <TextBlock Text="Average Waste %" FontWeight="SemiBold" FontSize="16"/>
                     <TextBlock Text="{Binding AverageWaste, StringFormat={}{0:P2}}" 
                                FontSize="28" FontWeight="Bold" 
                                Foreground="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}"/>
@@ -78,7 +78,7 @@
             </Border>
         </Grid>
 
-        <GroupBox Grid.Row="2" Header="Production Gantt Chart (PoC)" FontWeight="SemiBold">
+        <GroupBox Grid.Row="1" Header="Production Gantt Chart" FontWeight="SemiBold" Margin="0,92,0,0" Grid.RowSpan="2">
             <lvc:CartesianChart
                 Sections="{Binding GanttSections}"
                 XAxes="{Binding XAxes}"
@@ -93,19 +93,19 @@
                 <ColumnDefinition Width="529*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="Regular" Padding="5" Margin="0,0,90,0">
+            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" Foreground="black" FontWeight="Regular" Padding="5" Margin="0,0,156,0">
                 <DataGrid ItemsSource="{Binding PlanoCliente}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Cust.Order #" Binding="{Binding CustomerOrderNumber}"/>
+                        <DataGridTextColumn Header="Order #" Binding="{Binding CustomerOrderNumber}"/>
                         <DataGridTextColumn Header="Product" Binding="{Binding Product}"/>
                         <DataGridTextColumn Header="Length" Binding="{Binding Length}"/>
-                        <DataGridTextColumn Header="Cutting Width" Binding="{Binding CuttingWidth}"/>
+                        <DataGridTextColumn Header="Cut Width" Binding="{Binding CuttingWidth}"/>
                         <DataGridTextColumn Header="Req. Date" Binding="{Binding RequiredDate, StringFormat=d}"/>
                         <DataGridTextColumn Header="Req. Qty" Binding="{Binding RequiredQuantity}"/>
-                        <DataGridTextColumn Header="Planned Date" Binding="{Binding PlannedDate, StringFormat=d}"/>
+                        <DataGridTextColumn Header="Plan. Date" Binding="{Binding PlannedDate, StringFormat=d}"/>
                         <DataGridTextColumn Header="Deviation" Binding="{Binding Deviation}"/>
 
-                        <DataGridTemplateColumn Header="Status">
+                        <DataGridTemplateColumn Header="Status" Width="*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Status}" Style="{StaticResource StatusTextStyle}" Padding="4 0" VerticalAlignment="Center" />
@@ -117,13 +117,14 @@
                 </DataGrid>
             </GroupBox>
 
-            <GroupBox Header="Production Orders (by Cutting Pattern)" FontWeight="Regular"  Padding="5" Margin="751,0,0,0" Grid.ColumnSpan="2">
+            <GroupBox Header="Production Orders (by Cutting Pattern)" Foreground="black" FontWeight="Regular"  Padding="5" Margin="685,0,0,0" Grid.ColumnSpan="2">
                 <DataGrid ItemsSource="{Binding PlanoProducao}" AutoGenerateColumns="False" IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Job #" Binding="{Binding JobNumber}"/>
                         <DataGridTextColumn Header="Machine" Binding="{Binding Maquina}"/>
                         <DataGridTextColumn Header="Prod.Date" Binding="{Binding DataProducao, StringFormat=d}"/>
                         <DataGridTextColumn Header="Length" Binding="{Binding Length}"/>
+                        <DataGridTextColumn Header="Coin Qty" Binding="{Binding QtdBobinasMae}"/>
                         <DataGridTextColumn Header="Composition" Binding="{Binding Composition}" Width="2*"/>
 
                         <DataGridTemplateColumn Header="Waste %">
