@@ -10,7 +10,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         d:DataContext="{d:DesignInstance Type=viewModels:DashboardViewModel, IsDesignTimeCreatable=False}"
         mc:Ignorable="d"
-        Title="APS System - Planning Dashboard" Height="800" Width="1400" WindowStartupLocation="CenterScreen" FontSize="14">
+        Title="APS System - Planning Dashboard" Height="900" Width="1600" WindowStartupLocation="CenterScreen" FontSize="14">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -29,15 +29,16 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="177*"/>
-            <RowDefinition Height="110*"/>
+            <RowDefinition Height="393*"/>
+            <RowDefinition Height="281*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="Optimization Control Panel" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
-
+        <Image Source="/Assets/Optim sem Consulting.png"  HorizontalAlignment="Right" Height="40"     />
+        
         <Border Grid.Row="1" BorderBrush="Gainsboro" BorderThickness="1" Padding="10" CornerRadius="3" Margin="0,0,0,15" Grid.RowSpan="2">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="1548">
                 <GroupBox Header="1. Scenario Selection" Padding="10" FontWeight="SemiBold" VerticalAlignment="Top">
                     <StackPanel>
                         <RadioButton Content="Demand &lt; Capacity (Anticipation)" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Antecipacao}"/>
@@ -61,14 +62,17 @@
                     </StackPanel>
                 </GroupBox>
                 <Button Content="Analyze Scenario" Command="{Binding AnalisarCenarioCommand}" IsEnabled="{Binding IsIdle}" VerticalAlignment="Center" Padding="20,10" Margin="20,0,0,0" FontSize="16" FontWeight="Bold"/>
-                <Button Content="Start Optimization" Command="{Binding StartOptimizationCommand}" IsEnabled="{Binding IsIdle}" VerticalAlignment="Center" Padding="20,10" Margin="10,0,0,0" FontSize="16"/>
+                <Button Content="Start Optimization" Command="{Binding StartOptimizationCommand}" IsEnabled="{Binding IsIdle}" VerticalAlignment="Center" Padding="20,10" Margin="10,0,0,0" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right"/>
+               
+
+
             </StackPanel>
         </Border>
 
         <Grid Grid.Row="3" Margin="0,0,0,354">
         </Grid>
-        <lvc:CartesianChart Grid.Row="3" Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" Margin="0,10,0,10"/>
-        <DataGrid Grid.Row="4" ItemsSource="{Binding OrdensParaExibir}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
+        <lvc:CartesianChart Grid.Row="3" Series="{Binding Series}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" Margin="0,10,0,0" Height="366" VerticalAlignment="Top"/>
+        <DataGrid Grid.Row="4" ItemsSource="{Binding OrdensParaExibir}" FontWeight="semiBold" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Order Number" Binding="{Binding NumeroOrdem}" Width="*"/>
                 <DataGridTextColumn Header="Part Number" Binding="{Binding PartNumberEfetivoDisplay}" Width="2*"/>

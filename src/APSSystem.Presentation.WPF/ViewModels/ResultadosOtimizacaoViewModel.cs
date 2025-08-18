@@ -1,18 +1,20 @@
 ﻿using APSSystem.Application.UseCases.AnalisarResultadoGams;
+using APSSystem.Presentation.WPF.Commands;
+
+// Usings para LiveCharts v2 (Abordagem Sections)
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
 using MediatR;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using WpfApp = System.Windows.Application;
-
-// Usings para LiveCharts v2 (Abordagem Sections)
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using SkiaSharp;
 
 namespace APSSystem.Presentation.WPF.ViewModels
 {
@@ -35,6 +37,18 @@ namespace APSSystem.Presentation.WPF.ViewModels
 
         private decimal _averageWaste;
         public decimal AverageWaste { get => _averageWaste; set { _averageWaste = value; OnPropertyChanged(); } }
+        private bool _isSuccessOverlayVisible;
+        /// <summary>
+        /// Controla a visibilidade do overlay de mensagem de sucesso.
+        /// </summary>
+        public bool IsSuccessOverlayVisible
+        {
+            get => _isSuccessOverlayVisible;
+            set { _isSuccessOverlayVisible = value; OnPropertyChanged(); }
+        }
+
+        public ICommand CreateJobsCommand { get; }
+        public ICommand HideSuccessOverlayCommand { get; }
 
         // Coleções para as tabelas
         public ObservableCollection<ItemDePlanoDetalhado> PlanoCliente { get; set; } = new();
@@ -56,6 +70,17 @@ namespace APSSystem.Presentation.WPF.ViewModels
             _mediator = mediator;
             XAxes = Array.Empty<Axis>();
             YAxes = Array.Empty<Axis>();
+
+            // Inicializa os comandos
+            CreateJobsCommand = new RelayCommand(p => ExecuteCreateJobs());
+            HideSuccessOverlayCommand = new RelayCommand(p => IsSuccessOverlayVisible = false);
+        }
+        private void ExecuteCreateJobs()
+        {
+            // AQUI virá a lógica real para criar os jobs.
+            // Por enquanto, para este PoC, apenas exibimos a mensagem de sucesso.
+            StatusMessage = "Jobs created successfully!";
+            IsSuccessOverlayVisible = true;
         }
 
         /// <summary>

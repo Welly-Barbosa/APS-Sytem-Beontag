@@ -13,6 +13,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Assets\Optim sem Consulting.png" />
+	  <None Remove="Assets\Optim_Consulting.png" />
+	  <None Remove="Assets\PoC_Success_v2.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Assets\Optim sem Consulting.png" />
+	  <Resource Include="Assets\Optim_Consulting.png" />
+	  <Resource Include="Assets\PoC_Success_v2.png" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\Application\Application.csproj" />
 		<ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
 	</ItemGroup>

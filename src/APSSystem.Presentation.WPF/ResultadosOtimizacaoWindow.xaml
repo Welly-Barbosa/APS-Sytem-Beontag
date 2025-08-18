@@ -14,6 +14,7 @@
         FontSize="14">
 
     <Window.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:WasteToBrushConverter x:Key="WasteToBrushConverter"/>
         <converters:FulfillmentToBrushConverter x:Key="FulfillmentToBrushConverter"/>
 
@@ -41,147 +42,171 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Grid>
 
-        <TextBlock Grid.Row="0" Text="Post-Optimization Analysis" FontSize="24" FontWeight="Bold" Margin="0,0,0,15"/>
+        <Grid Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Grid Grid.Row="1" Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="1570"/>
-            </Grid.ColumnDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,15">
+                <TextBlock Text="Post-Optimization Analysis" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
+                <Image Source="/Assets/Optim sem Consulting.png" HorizontalAlignment="Right" Height="40" VerticalAlignment="Center"/>
+            </Grid>
 
-            <Border Grid.Column="0" 
-                    BorderBrush="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}" 
-                    BorderThickness="2" CornerRadius="3" Padding="10" MinWidth="250" Grid.ColumnSpan="3" Margin="0,0,1145,0">
-                <StackPanel>
-                    <TextBlock Text="Order Fulfillment" FontWeight="SemiBold" FontSize="16"/>
-                    <TextBlock Text="{Binding OrderFulfillment, StringFormat={}{0:P2}}" 
-                               FontSize="28" FontWeight="Bold" 
-                               Foreground="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}"/>
-                </StackPanel>
-            </Border>
+            <Grid Grid.Row="1" Margin="0,0,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="1" 
-                    BorderBrush="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}" 
-                    BorderThickness="2" CornerRadius="3" Padding="10" Margin="471,0,692,0" MinWidth="250" Grid.ColumnSpan="2">
-                <StackPanel>
-                    <TextBlock Text="Average Waste %" FontWeight="SemiBold" FontSize="16"/>
-                    <TextBlock Text="{Binding AverageWaste, StringFormat={}{0:P2}}" 
-                               FontSize="28" FontWeight="Bold" 
-                               Foreground="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}"/>
-                </StackPanel>
-            </Border>
-        </Grid>
+                <Border Grid.Column="0" 
+                        BorderBrush="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}" 
+                        BorderThickness="2" CornerRadius="3" Padding="10" MinWidth="250">
+                    <StackPanel>
+                        <TextBlock Text="Order Fulfillment" FontWeight="SemiBold" FontSize="16"/>
+                        <TextBlock Text="{Binding OrderFulfillment, StringFormat={}{0:P2}}" 
+                                   FontSize="28" FontWeight="Bold" 
+                                   Foreground="{Binding OrderFulfillment, Converter={StaticResource FulfillmentToBrushConverter}}"/>
+                    </StackPanel>
+                </Border>
 
-        <GroupBox Grid.Row="2" Header="Production Gantt Chart" FontWeight="SemiBold" Margin="0,0,0,10">
-            <lvc:CartesianChart
-                Sections="{Binding GanttSections}"
-                XAxes="{Binding XAxes}"
-                YAxes="{Binding YAxes}"
-                ZoomMode="X"
-                TooltipPosition="Auto"/>
-        </GroupBox>
+                <Border Grid.Column="1" 
+                        BorderBrush="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}" 
+                        BorderThickness="2" CornerRadius="3" Padding="10" MinWidth="250" Margin="10,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Average Waste %" FontWeight="SemiBold" FontSize="16"/>
+                        <TextBlock Text="{Binding AverageWaste, StringFormat={}{0:P2}}" 
+                                   FontSize="28" FontWeight="Bold" 
+                                   Foreground="{Binding AverageWaste, Converter={StaticResource WasteToBrushConverter}}"/>
+                    </StackPanel>
+                </Border>
 
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                <Button Grid.Column="2" 
+                        Command="{Binding CreateJobsCommand}"
+                        Content="Create Jobs" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        FontSize="18"
+                        Padding="20,10"
+                        MinWidth="200"/>
+            </Grid>
 
-            <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="SemiBold" Padding="5" Margin="0,0,5,0">
-                <DataGrid ItemsSource="{Binding PlanoCliente}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Order #" Binding="{Binding CustomerOrderNumber}" Width="Auto"/>
-                        <DataGridTextColumn Header="Product" Binding="{Binding Product}" Width="*"/>
-                        <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="Auto"/>
-                        <DataGridTextColumn Header="Cut Width" Binding="{Binding CuttingWidth}" Width="Auto"/>
-                        <DataGridTextColumn Header="Req. Date" Binding="{Binding RequiredDate, StringFormat=d}" Width="Auto"/>
-                        <DataGridTextColumn Header="Req. Qty" Binding="{Binding RequiredQuantity}" Width="Auto"/>
-
-                        <DataGridTemplateColumn Header="Plan. Date" Width="Auto">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="{Binding PlannedDate, StringFormat=d}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Not Planned">
-                                                        <Setter Property="Text" Value="" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-
-                        <DataGridTemplateColumn Header="Deviation" Width="Auto">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="{Binding Deviation}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Not Planned">
-                                                        <Setter Property="Text" Value="" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-
-                        <DataGridTemplateColumn Header="Status" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Status}" Style="{StaticResource StatusTextStyle}" Padding="4 0" VerticalAlignment="Center" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+            <GroupBox Grid.Row="2" Header="Production Gantt Chart" FontWeight="SemiBold" Margin="0,0,0,10">
+                <lvc:CartesianChart
+                    Sections="{Binding GanttSections}"
+                    XAxes="{Binding XAxes}"
+                    YAxes="{Binding YAxes}"
+                    ZoomMode="X"
+                    TooltipPosition="Auto"/>
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Header="Production Orders (by Cutting Pattern)" FontWeight="SemiBold" Padding="5" Margin="5,0,0,0">
-                <DataGrid ItemsSource="{Binding PlanoProducao}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Job #" Binding="{Binding JobNumber}" Width="Auto"/>
-                        <DataGridTextColumn Header="Machine" Binding="{Binding Maquina}" Width="Auto"/>
-                        <DataGridTextColumn Header="Prod.Date" Binding="{Binding DataProducao, StringFormat=d}" Width="Auto"/>
-                        <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="Auto"/>
-                        <DataGridTextColumn Header="Coin Qty" Binding="{Binding QtdBobinasMae}" Width="Auto"/>
-                        <DataGridTextColumn Header="Composition" Binding="{Binding Composition}" Width="2*"/>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                        <DataGridTemplateColumn Header="Waste %" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding WastePercentage, StringFormat=P2}" Style="{StaticResource WasteTextStyle}" Padding="4 0" VerticalAlignment="Center" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
+                <GroupBox Grid.Column="0" Header="Customer Order Fulfillment" FontWeight="SemiBold" Padding="5" Margin="0,0,5,0">
+                    <DataGrid ItemsSource="{Binding PlanoCliente}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Order #" Binding="{Binding CustomerOrderNumber}" Width="Auto"/>
+                            <DataGridTextColumn Header="Product" Binding="{Binding Product}" Width="*"/>
+                            <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="Auto"/>
+                            <DataGridTextColumn Header="Cut Width" Binding="{Binding CuttingWidth}" Width="Auto"/>
+                            <DataGridTextColumn Header="Req. Date" Binding="{Binding RequiredDate, StringFormat=d}" Width="Auto"/>
+                            <DataGridTextColumn Header="Req. Qty" Binding="{Binding RequiredQuantity}" Width="Auto"/>
+                            <DataGridTemplateColumn Header="Plan. Date" Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding PlannedDate, StringFormat=d}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Not Planned">
+                                                            <Setter Property="Text" Value="" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Deviation" Width="Auto">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding Deviation}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Not Planned">
+                                                            <Setter Property="Text" Value="" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Status" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Status}" Style="{StaticResource StatusTextStyle}" Padding="4 0" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
+
+                <GroupBox Grid.Column="1" Header="Production Orders (by Cutting Pattern)" FontWeight="SemiBold" Padding="5" Margin="5,0,0,0">
+                    <DataGrid ItemsSource="{Binding PlanoProducao}" AutoGenerateColumns="False" IsReadOnly="True" CanUserSortColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Job #" Binding="{Binding JobNumber}" Width="Auto"/>
+                            <DataGridTextColumn Header="Machine" Binding="{Binding Maquina}" Width="Auto"/>
+                            <DataGridTextColumn Header="Prod.Date" Binding="{Binding DataProducao, StringFormat=d}" Width="Auto"/>
+                            <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="Auto"/>
+                            <DataGridTextColumn Header="Coin Qty" Binding="{Binding QtdBobinasMae}" Width="Auto"/>
+                            <DataGridTextColumn Header="Composition" Binding="{Binding Composition}" Width="2*"/>
+                            <DataGridTemplateColumn Header="Waste %" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding WastePercentage, StringFormat=P2}" Style="{StaticResource WasteTextStyle}" Padding="4 0" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
+            </Grid>
+
+            <StatusBar Grid.Row="4" Margin="0,10,0,0">
+                <StatusBarItem>
+                    <TextBlock Text="{Binding StatusMessage}" />
+                </StatusBarItem>
+            </StatusBar>
         </Grid>
 
-        <StatusBar Grid.Row="4" Margin="0,10,0,0">
-            <StatusBarItem>
-                <TextBlock Text="{Binding StatusMessage}" />
-            </StatusBarItem>
-        </StatusBar>
+        <Grid Background="#7F000000"
+              Visibility="{Binding IsSuccessOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding HideSuccessOverlayCommand}" />
+            </Grid.InputBindings>
+            <Image Source="/Assets/PoC_Success_v2.png"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Width="1200"/>
+        </Grid>
+
     </Grid>
 </Window>
