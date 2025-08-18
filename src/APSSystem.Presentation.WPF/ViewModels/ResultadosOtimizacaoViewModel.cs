@@ -16,6 +16,9 @@ using SkiaSharp;
 
 namespace APSSystem.Presentation.WPF.ViewModels
 {
+    /// <summary>
+    /// ViewModel responsável por apresentar os resultados detalhados da otimização.
+    /// </summary>
     public class ResultadosOtimizacaoViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
@@ -44,6 +47,10 @@ namespace APSSystem.Presentation.WPF.ViewModels
         private Axis[] _yAxes;
         public Axis[] YAxes { get => _yAxes; private set { _yAxes = value; OnPropertyChanged(); } }
 
+        /// <summary>
+        /// Inicializa uma nova instância de ResultadosOtimizacaoViewModel.
+        /// </summary>
+        /// <param name="mediator">O mediador para enviar comandos e queries.</param>
         public ResultadosOtimizacaoViewModel(IMediator mediator)
         {
             _mediator = mediator;
@@ -51,6 +58,10 @@ namespace APSSystem.Presentation.WPF.ViewModels
             YAxes = Array.Empty<Axis>();
         }
 
+        /// <summary>
+        /// Carrega e processa os resultados da otimização a partir de um diretório de job.
+        /// </summary>
+        /// <param name="caminhoPastaJob">O caminho para a pasta contendo os arquivos de resultado do GAMS.</param>
         public async Task CarregarResultados(string caminhoPastaJob)
         {
             IsIdle = false;
@@ -62,7 +73,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
 
                 await WpfApp.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    // ALTERAÇÃO: Ordena os dados antes de popular as coleções
+                    // Ordena os dados antes de popular as coleções para garantir consistência na exibição.
                     var sortedPlanoCliente = resultado.PlanoCliente
                         .OrderBy(p => p.RequiredDate)
                         .ThenBy(p => p.Product)
@@ -100,6 +111,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
                 IsIdle = true;
             }
         }
+
         /// <summary>
         /// Constrói os dados do gráfico de Gantt com lógica de sequenciamento de jobs.
         /// </summary>
@@ -177,7 +189,8 @@ namespace APSSystem.Presentation.WPF.ViewModels
             {
                 new Axis
                 {
-                    Labeler = v => " ",
+                    Labeler = v => new DateTime((long)(v * TimeSpan.TicksPerDay + DateTime.Now.Ticks)).ToString("HH:mm"),
+                    //Labeler = value => DateTime.FromOADate(value).ToString("dd > HH:mm"),
                     LabelsRotation = 0,
                     // Define a janela de visualização total para 16 horas.
                     MinLimit = inicioProducao.ToOADate(),

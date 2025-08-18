@@ -55,7 +55,7 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
                 Status: TraduzirStatus(status.StatusEntrega, status.DiasDesvio)
             )).ToList();
 
-        //var fulfillment = planoCliente.Any() ? (decimal)(planoCliente.Count - planoCliente.Count(p => p.Status == "On Time" || p.Status == "Antecipated")) / planoCliente.Count : 0;
+        var fulfillment = planoCliente.Any() ? (decimal)(planoCliente.Count(p => p.Status == "On Time" || p.Status == "Antecipated")) / planoCliente.Count : 0;
         //var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
 
         // 1. Calcula o Order Fulfillment conforme a nova regra
@@ -68,11 +68,11 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
         var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
 
         // Cálculo do Order Fulfillment
-        var totalOrdensCliente = (decimal)planoCliente.Count;
-        var ordensComAtraso = (decimal)planoCliente.Count(p => p.Deviation.HasValue && p.Deviation > 0);
-        var fulfillment = totalOrdensCliente > 0
-            ? (totalOrdensCliente - ordensComAtraso) / totalOrdensCliente
-            : 0;
+        //var totalOrdensCliente = (decimal)planoCliente.Count;
+        //var ordensComAtraso = (decimal)planoCliente.Count(p => p.Deviation.HasValue && p.Deviation > 0);
+        //var fulfillment = totalOrdensCliente > 0
+        //    ? (totalOrdensCliente - ordensComAtraso) / totalOrdensCliente
+        //    : 0;
 
         // Cálculo do Average Waste %
         //var totalOrdensProducao = (decimal)planoProducao.Count;
