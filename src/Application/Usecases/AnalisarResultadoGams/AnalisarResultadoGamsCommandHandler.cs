@@ -26,21 +26,29 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
         var dadosGams = await _gamsParser.ParseAsync(request.CaminhoPastaJob);
         var perdaPorPadrao = _calculadoraDePerda.CalcularPerdaPorPadrao(dadosGams.PlanoDeProducao, dadosGams.ComposicaoDosPadroes);
 
-        // Agrupa as composições por padrão de corte para a nova formatação
+        // Agrupa as composições por padrão de corte, formatando a string sem o PN_Base.
         var composicaoAgrupada = dadosGams.ComposicaoDosPadroes
             .GroupBy(c => c.PadraoCorte)
-            .ToDictionary(g => g.Key, g => string.Join(" / ", g.Select(item => $"{item.QtdPorBobinaMae:F0}x{item.PN_Base}>{item.LarguraProduto}")));
+            .ToDictionary(g => g.Key, g => string.Join(" / ", g.Select(item => $"{item.QtdPorBobinaMae:F0} x {item.LarguraProduto}")));
 
         var planoProducao = dadosGams.PlanoDeProducao
-            .Select(plano => new ItemOrdemProducao(
-                DataProducao: plano.DataProducao,
-                Maquina: plano.Maquina,
-                QtdBobinasMae: (int)plano.QtdBobinasMae,
-                JobNumber: plano.PadraoCorte, // Job # é o PadraoCorte
-                Length: dadosGams.ComposicaoDosPadroes.FirstOrDefault(c => c.PadraoCorte == plano.PadraoCorte)?.CompProduto ?? 0,
-                Composition: composicaoAgrupada.GetValueOrDefault(plano.PadraoCorte, ""),
-                WastePercentage: perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
-            )).ToList();
+            .Select(plano =>
+            {
+                // Para evitar múltiplas buscas, obtemos a primeira referência da composição para este padrão.
+                // O produto e o comprimento são os mesmos para todas as saídas de um mesmo padrão de corte.
+                var infoComposicao = dadosGams.ComposicaoDosPadroes.FirstOrDefault(c => c.PadraoCorte == plano.PadraoCorte);
+
+                return new ItemOrdemProducao(
+                    DataProducao: plano.DataProducao,
+                    Maquina: plano.Maquina,
+                    JobNumber: plano.PadraoCorte,
+                    Product: infoComposicao?.PN_Base ?? "N/A", // Popula o novo campo 'Product'
+                    Length: infoComposicao?.CompProduto ?? 0, // Usa a mesma fonte para garantir consistência
+                    QtdBobinasMae: (int)plano.QtdBobinasMae,
+                    Composition: composicaoAgrupada.GetValueOrDefault(plano.PadraoCorte, ""),
+                    WastePercentage: perdaPorPadrao.GetValueOrDefault(plano.PadraoCorte)
+                );
+            }).ToList();
 
         var planoCliente = dadosGams.StatusDasEntregas
             .Select(status => new ItemDePlanoDetalhado(
@@ -55,39 +63,30 @@ public class AnalisarResultadoGamsCommandHandler : IRequestHandler<AnalisarResul
                 Status: TraduzirStatus(status.StatusEntrega, status.DiasDesvio)
             )).ToList();
 
+        // Cálculo do Order Fulfillment (lógica mantida).
         var fulfillment = planoCliente.Any() ? (decimal)(planoCliente.Count(p => p.Status == "On Time" || p.Status == "Antecipated")) / planoCliente.Count : 0;
-        //var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
 
-        // 1. Calcula o Order Fulfillment conforme a nova regra
-        //var totalOrdens = planoCliente.Count;
-        // Conta as ordens que não estão atrasadas (desvio <= 0) e foram planejadas (Status > 0)
-        //var ordensAtendidasSemAtraso = planoCliente.Count(p => (p.Deviation ?? 0) <= 0 && p.Status != "Not Planned");
-        //var fulfillment = totalOrdens > 0 ? (decimal)ordensAtendidasSemAtraso / totalOrdens : 0;
+        // --- INÍCIO DA ALTERAÇÃO: Cálculo da Perda Média Ponderada ---
 
-        // 2. Calcula a média de perda de material (lógica existente mantida por ser a correta para "Waste")
-        var perdaMedia = perdaPorPadrao.Values.Any() ? perdaPorPadrao.Values.Average() : 0;
+        // Calcula a soma total de bobinas-mãe utilizadas no plano.
+        var totalBobinasMae = planoProducao.Sum(p => p.QtdBobinasMae ?? 0);
 
-        // Cálculo do Order Fulfillment
-        //var totalOrdensCliente = (decimal)planoCliente.Count;
-        //var ordensComAtraso = (decimal)planoCliente.Count(p => p.Deviation.HasValue && p.Deviation > 0);
-        //var fulfillment = totalOrdensCliente > 0
-        //    ? (totalOrdensCliente - ordensComAtraso) / totalOrdensCliente
-        //    : 0;
+        // Calcula o somatório do produto da perda pelo número de bobinas para cada ordem de produção.
+        var somatorioPonderadoDasPerdas = planoProducao.Sum(p => p.WastePercentage * (p.QtdBobinasMae ?? 0));
 
-        // Cálculo do Average Waste %
-        //var totalOrdensProducao = (decimal)planoProducao.Count;
-        //var somaDasPerdas = planoProducao.Sum(p => p.WastePercentage);
-        //var perdaMedia = totalOrdensProducao > 0
-        //    ? somaDasPerdas / totalOrdensProducao
-         //   : 0;
+        // Calcula a média ponderada, garantindo a prevenção de divisão por zero.
+        var perdaMedia = totalBobinasMae > 0
+            ? somatorioPonderadoDasPerdas / totalBobinasMae
+            : 0;
 
+        // --- FIM DA ALTERAÇÃO ---
 
         return new ResultadoGamsAnalisado
         {
             PlanoCliente = planoCliente,
             PlanoProducao = planoProducao,
-            OrderFulfillmentPercentage = fulfillment, //* 100,
-            AverageWastePercentage = perdaMedia, // * 100,
+            OrderFulfillmentPercentage = fulfillment,
+            AverageWastePercentage = perdaMedia,
         };
     }
 

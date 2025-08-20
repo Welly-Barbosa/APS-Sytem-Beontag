@@ -1,21 +1,21 @@
 * ==============================================================================
 * GAMS Model: Otimizacao de Corte de Bobinas - Beontag
-* Versao: 28.0 - GEEK (Filtro de Par Valido)
+* Versao: 25.0 - GEEK (Modelo Hibrido Robusto)
 * Autor: GAMS Geek (Gemini AI)
-* Data: 20 de Agosto de 2025
+* Data: 17 de Agosto de 2025
 *
 * DESCRICAO:
-* Esta versao corrige a falha de geracao de padroes da v27.0 implementando
-* um filtro unificado e robusto para o subproblema.
-* 1. Um novo Set 'p_pc_validos(p_base, c)' e criado dinamicamente para
-* armazenar apenas as combinacoes (PN_Base, Comprimento) que existem.
-* 2. O subproblema foi reestruturado para usar uma unica variavel binaria
-* 'y_par_pc' que seleciona um desses pares validos.
-* 3. Esta abordagem garante que o subproblema sempre opere com um conjunto
-* viavel de produtos, resolvendo a falha e tornando o modelo mais eficiente.
+* Esta versao resgata a robustez e flexibilidade do modelo v15.1 e a
+* combina com as melhorias de geracao de colunas e relatorios da v24.2.
+* 1. A funcao objetivo retorna a ser uma soma ponderada de custos (Producao,
+* Atraso, Excedente, Falta), dando ao solver flexibilidade economica.
+* 2. Reintroduz as variaveis v_falta e v_excedente como "valvulas de escape"
+* para garantir que o modelo sempre encontre uma solucao viavel.
+* 3. Mantem a logica de geracao de colunas com padrao 'dummy' e a restricao
+* de numero maximo de cortes no subproblema, garantindo padroes realistas.
 * ==============================================================================
 
-$TITLE Otimizacao de Corte de Bobinas - Beontag (v28.0 - Filtro de Par)
+$TITLE Otimizacao de Corte de Bobinas - Beontag (v25.0 - Hibrido Robusto)
 
 * ------------------------------------------------------------------------------
 * FASE 0: OPCOES GLOBAIS
@@ -43,16 +43,9 @@ $INCLUDE 'GamsInputData.dat'
 * 1.2 Declaracao de Conjuntos e Parametros Adicionais
 * ------------------------------------------------------------------------------
 Sets
-    pt       'Universo de padroes de corte potenciais' /pt_dummy, Job001*Job999/
-*-- NOVO --*
-    p_pc_validos(p_base, c) 'Pares (PN_Base, Comprimento) que existem nos dados';
-
+    pt       'Universo de padroes de corte potenciais' /pt_dummy, Job001*Job999/;
 Alias (t, tt, t2, t_prod);
 Alias (pt, pt_new);
-
-* --- Populamos dinamicamente o novo Set com as combinacoes que realmente existem
-p_pc_validos(p_base, c) = yes$sum(w, p(p_base, w, c));
-
 
 * --- Parametros para calculo da capacidade ---
 Parameter p_velocidadeEfetiva(j) 'pol/min efetivo';
@@ -63,15 +56,16 @@ p_tempoProcesso(j)$p_velocidadeEfetiva(j) = s_comprimentoMae_pes / p_velocidadeE
 Parameter p_tempoUsoMaquina(j) 'min por uso na maquina j (setup + processo)';
 p_tempoUsoMaquina(j) = p_tempoSetupBase(j) + p_tempoProcesso(j);
 
-* --- Parametros de Custo e Qualidade ---
-Scalar s_pesoCustoProducao         'Custo por bobina-mae usada' / 1 /;
-Scalar s_pesoCustoAtraso          'Penalidade ponderada por dia de atraso'/ 10 /;
-Scalar s_pesoCustoFalta        'Custo por unidade de produto faltante (demanda nao atendida)'/ 10000 /;
-Scalar s_pesoCustoRefugo         'Custo de refugo (sobra de largura), para desempate'/ 0.1 /;
+* --- Parametros de Custo e Qualidade (Logica Hibrida) ---
+Scalar s_pesoCustoProducao    'Custo por bobina-mae usada' / 1 /;     
+Scalar s_pesoCustoAtraso      'Penalidade ponderada por dia de atraso' / 10 /;    
+Scalar s_pesoCustoExcedente   'Custo por unidade de produto excedente' / 0.1 /;   
+Scalar s_pesoCustoFalta       'Custo por unidade de produto faltante (demanda nao atendida)' / 10000 /; 
+Scalar s_pesoCustoRefugo      'Custo de refugo (sobra de largura), para desempate' / 0.1 /;   
 
-Scalar s_minUtilPct_master    'Utilizacao minima para um padrao ser aceito pelo mestre' / 0.90 /;
+Scalar s_minUtilPct_master    'Utilizacao minima para um padrao ser aceito pelo mestre' / 0.97 /;
 
-* --- Parametro para a restricao global de cortes ---
+* --- Parametro para a restricao global de cortes (MANTIDO da v24.2) ---
 Scalar s_maxCortesGlobal     'Numero maximo de cortes permitido em um padrao';
 s_maxCortesGlobal = smin(j, p_maxCortes(j));
 
@@ -88,7 +82,7 @@ Parameters
 p_larguraPwC(p_base,w,c)$(p_larguraProduto(p_base,w,c)) = p_larguraProduto(p_base,w,c);
 p_compPwC(p_base,w,c)$(p_comprimentoProduto(p_base,w,c)) = p_comprimentoProduto(p_base,w,c);
 
-* --- Calculo da penalidade de atraso ---
+* --- Calculo da penalidade de atraso (Logica da v15.1) ---
 p_custoAtraso(p_base,w,c,t)$p_demanda(p_base,w,c,t) = (1 / (ord(t) + 1e-6)) * p_demanda(p_base,w,c,t);
 
 
@@ -100,14 +94,15 @@ Parameters
     p_rendimentoPadrao(pt,p_base,w,c) 'Qtd do produto (p,w,c) por padrao pt';
 Set pt_on(pt) 'Padroes ativos que podem ser usados pelo mestre';
 
-* --- Variaveis e Equacoes do Mestre ---
+* --- Variaveis e Equacoes do Mestre (Logica Hibrida - Base v15.1) ---
 Variables
     v_usaPadrao(pt, j, t)
+    v_excedente(p_base, w, c)
     v_diasAtraso(p_base, w, c, t)
     v_falta(p_base, w, c)
     zTotal;
 Integer Variable  v_usaPadrao;
-Positive Variable v_diasAtraso, v_falta;
+Positive Variable v_excedente, v_diasAtraso, v_falta;
 
 Equations
     eq_objetivo
@@ -116,21 +111,25 @@ Equations
     eq_capacidade(j, t);
 
 *
-* A funcao objetivo minimiza a soma ponderada de todos os custos.
+* A funcao objetivo minimiza a soma ponderada de todos os custos, oferecendo flexibilidade economica.
 eq_objetivo.. zTotal =e=
       s_pesoCustoProducao  * sum((pt,j,t)$pt_on(pt), v_usaPadrao(pt,j,t))
     + s_pesoCustoRefugo    * sum((pt,j,t)$pt_on(pt), (p_refugoLargura(pt)/s_larguraMae) * v_usaPadrao(pt,j,t))
     + s_pesoCustoAtraso    * sum((p_base,w,c,t), v_diasAtraso(p_base,w,c,t))
+    + s_pesoCustoExcedente * sum((p_base,w,c), v_excedente(p_base,w,c))
     + s_pesoCustoFalta     * sum((p_base,w,c), v_falta(p_base,w,c));
 
 *
-* Garante que a producao total de um item, somada a falta, seja EXATAMENTE igual a demanda total.
+* Garante que a producao total de um item, somada a falta, seja igual a demanda total, mais o excedente.
 eq_atendeDemanda(p_base,w,c)..
     sum((pt,j,t)$pt_on(pt), p_rendimentoPadrao(pt, p_base,w,c) * v_usaPadrao(pt,j,t)) + v_falta(p_base,w,c)
-    =e= sum(t, p_demanda(p_base,w,c, t));
+    =e= sum(t, p_demanda(p_base,w,c, t)) + v_excedente(p_base,w,c);
 
 *
 * O atraso e calculado para cada necessidade especifica, ponderado pela quantidade produzida apos o prazo.
+* Para evitar que a producao adiantada de um item para uma demanda futura gere atraso para uma demanda presente,
+* precisamos de uma logica mais detalhada que sera tratada nos relatorios, simplificando o mestre.
+* O custo de atraso sera calculado sobre a producao que ocorre apos o dia da demanda.
 eq_calculaAtraso(p_base,w,c,t)$p_demanda(p_base,w,c,t)..
     v_diasAtraso(p_base,w,c,t) =g= sum((pt,j,t2)$(pt_on(pt) and ord(t2) > ord(t)),
         (ord(t2) - ord(t)) * p_custoAtraso(p_base,w,c,t) * (p_rendimentoPadrao(pt,p_base,w,c) * v_usaPadrao(pt,j,t2))
@@ -146,59 +145,46 @@ eq_capacidade(j,t)$(p_tempoDisponivel(j,t) > 0)..
 Model CorteMestre / all /;
 
 * ------------------------------------------------------------------------------
-* --- Subproblema (Logica ALTERADA para Par Valido) ---
+* --- Subproblema (MANTIDO da v24.2) ---
 * ------------------------------------------------------------------------------
+Set c_on(c) 'comprimentos ativos no conjunto p';
+c_on(c) = yes$( sum((p_base,w)$p(p_base,w,c), 1) > 0 );
 Parameter UmaxCuts(p_base,w,c) 'limite sup. inteiro de cortes por produto no padrao';
 UmaxCuts(p_base,w,c) = 0;
 UmaxCuts(p_base,w,c)$(
     p(p_base,w,c) and p_larguraPwC(p_base,w,c) > 0 and
     p_larguraPwC(p_base,w,c) <= s_larguraMae
 ) = floor(s_larguraMae / p_larguraPwC(p_base,w,c));
-Scalar s_minUtilPct 'Target de utilizacao minima de largura por padrao' / 0.90 /;
+Scalar s_minUtilPct 'Target de utilizacao minima de largura por padrao' / 0.97 /;
 
-Variables
-    v_valorPadrao;
+Variables v_valorPadrao;
 Integer Variable v_geraCorte(p_base,w,c);
-*-- ALTERADO --*
-Binary Variable
-    y_par_pc(p_base, c) '1 se o par (PN, Comp) for escolhido para o padrao';
-
+Binary Variable  y_len(c) '1 se o padrao escolhe o comprimento c';
 Equations
-    eq_sub_objetivo,
-    eq_sub_capacidade,
-*-- NOVO --*
-    eq_um_par_pc,
-    eq_link_par_pc(p_base,w,c),
-    eq_min_util,
+    eq_sub_objetivo, eq_sub_capacidade, eq_one_len,
+    eq_link_len(p_base,w,c), eq_min_util,
     eq_sub_max_cortes;
 
 *
-* Funcao objetivo do subproblema: maximiza o valor do padrao.
+* Funcao objetivo do subproblema: maximiza o valor do padrao, que e a soma dos precos duais dos produtos incluidos.
 eq_sub_objetivo..   v_valorPadrao =e= sum((p_base,w,c), p_precoDual(p_base,w,c) * v_geraCorte(p_base,w,c));
 *
-* Restricao de capacidade de largura.
+* Restricao de capacidade de largura: a soma das larguras dos produtos cortados nao pode exceder a largura da bobina-mae.
 eq_sub_capacidade.. sum((p_base,w,c), p_larguraPwC(p_base,w,c) * v_geraCorte(p_base,w,c)) =l= s_larguraMae;
-
-*-- NOVO --*
 *
-* Garante que exatamente um par valido (PN_Base, Comprimento) seja escolhido.
-eq_um_par_pc..
-    sum(p_pc_validos(p_base,c), y_par_pc(p_base,c)) =e= 1;
-
-*-- NOVO --*
+* Garante que um padrao de corte pode ter produtos de apenas um unico comprimento de bobina-filha.
+eq_one_len..        sum(c$c_on(c), y_len(c)) =e= 1;
 *
-* Acopla a variavel de corte 'v_geraCorte' a escolha do par (PN_Base, Comprimento).
-eq_link_par_pc(p_base,w,c)$p(p_base,w,c)..
-    v_geraCorte(p_base,w,c) =l= UmaxCuts(p_base,w,c) * y_par_pc(p_base,c);
-
+* Acopla a variavel de decisao de corte (v_geraCorte) a variavel de escolha de comprimento (y_len). So pode cortar se o comprimento for escolhido.
+eq_link_len(p_base,w,c)$p(p_base,w,c)..
+    v_geraCorte(p_base,w,c) =l= UmaxCuts(p_base,w,c) * y_len(c);
 *
-* Garante que a utilizacao da largura da bobina-mae seja acima de um percentual minimo.
-*-- ALTERADO (simplificado, pois a soma das variaveis binarias agora e sempre 1)--*
+* Garante que a utilizacao da largura da bobina-mae seja acima de um percentual minimo para evitar padroes com muito refugo.
 eq_min_util..
     sum((p_base,w,c)$p(p_base,w,c), p_larguraPwC(p_base,w,c) * v_geraCorte(p_base,w,c))
-    =g= s_minUtilPct * s_larguraMae;
+    =g= s_minUtilPct * s_larguraMae * sum(c$c_on(c), y_len(c));
 *
-* Restricao de numero maximo de cortes.
+* Restricao de numero maximo de cortes: a soma total de itens (cortes) no padrao nao pode exceder o limite minimo global das maquinas.
 eq_sub_max_cortes..
     sum((p_base,w,c), v_geraCorte(p_base,w,c)) =l= s_maxCortesGlobal;
 
@@ -208,7 +194,7 @@ v_geraCorte.lo(p_base,w,c) = 0;
 v_geraCorte.up(p_base,w,c) = UmaxCuts(p_base,w,c);
 
 * ==============================================================================
-* FASE 3: LOOP DE GERACAO DE COLUNAS
+* FASE 3: LOOP DE GERACAO DE COLUNAS (Logica da v24.2)
 * ==============================================================================
 Scalar
     s_contadorPadroes   / 0 /,   s_podeMelhorar  / 1 /,     s_iter / 0 /,
@@ -268,10 +254,9 @@ WHILE( (s_podeMelhorar = 1) and (s_iter < s_iterMax) and (s_semMelhora < s_semMe
 );
 
 * ==============================================================================
-* FASE 4: OTIMIZACAO FINAL E RELATORIOS
+* FASE 4: OTIMIZACAO FINAL E RELATORIOS (Estrutura da v24.2)
 * ==============================================================================
 if (CorteMestre.modelstat = 1 or CorteMestre.modelstat = 8,
-    CorteMestre.reslim=300;
     SOLVE CorteMestre using MIP minimizing zTotal;
 );
 * ------------------------------------------------------------------------------

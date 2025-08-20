@@ -37,10 +37,10 @@ public class CalculadoraDeCargaService : ICalculadoraDeCargaService
         var qtdeTotalBobinas = qtdeBobinas10k + qtdeBobinas15k;
 
         // Etapa 3: Converter a quantidade de bobinas INTEIRAS em tempo de ocupação
-        decimal tempoDeProcessamento = (qtdeBobinas10k * _parametros.TempoProcessamentoBobina10k) +
-                                       (qtdeBobinas15k * _parametros.TempoProcessamentoBobina15k);
+        decimal tempoDeProcessamento = ((qtdeBobinas10k * 10000) +
+                                       (qtdeBobinas15k * 15000))/257;
 
-        decimal tempoDeSetup = qtdeTotalBobinas * _parametros.TempoSetupPorBobina;
+        decimal tempoDeSetup = qtdeTotalBobinas * 15;
 
         return tempoDeProcessamento + tempoDeSetup;
     }

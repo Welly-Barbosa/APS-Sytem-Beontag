@@ -41,6 +41,7 @@ public record ItemOrdemProducao(
     DateTime DataProducao,
     string Maquina,
     string JobNumber,
+    string Product,
     decimal Length,
     int? QtdBobinasMae,
     string Composition,

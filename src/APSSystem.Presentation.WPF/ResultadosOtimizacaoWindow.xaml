@@ -175,6 +175,7 @@
                             <DataGridTextColumn Header="Job #" Binding="{Binding JobNumber}" Width="Auto"/>
                             <DataGridTextColumn Header="Machine" Binding="{Binding Maquina}" Width="Auto"/>
                             <DataGridTextColumn Header="Prod.Date" Binding="{Binding DataProducao, StringFormat=d}" Width="Auto"/>
+                            <DataGridTextColumn Header="Product" Binding="{Binding Product}" Width="*"/>
                             <DataGridTextColumn Header="Length" Binding="{Binding Length}" Width="Auto"/>
                             <DataGridTextColumn Header="Coin Qty" Binding="{Binding QtdBobinasMae}" Width="Auto"/>
                             <DataGridTextColumn Header="Composition" Binding="{Binding Composition}" Width="2*"/>
