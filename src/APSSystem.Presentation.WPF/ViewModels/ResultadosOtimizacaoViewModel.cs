@@ -118,7 +118,7 @@ namespace APSSystem.Presentation.WPF.ViewModels
                     PlanoProducao.Clear();
                     sortedPlanoProducao.ForEach(item => PlanoProducao.Add(item));
 
-                    OrderFulfillment = resultado.OrderFulfillmentPercentage;
+                    OrderFulfillment = resultado.OrderFulfillmentPercentage ;
                     AverageWaste = resultado.AverageWastePercentage;
 
                     BuildGanttChartData();

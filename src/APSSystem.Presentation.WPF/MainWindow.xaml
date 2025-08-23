@@ -41,8 +41,8 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Width="1548">
                 <GroupBox Header="1. Scenario Selection" Padding="10" FontWeight="SemiBold" VerticalAlignment="Top">
                     <StackPanel>
-                        <RadioButton Content="Demand &lt; Capacity (Anticipation)" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Antecipacao}"/>
-                        <RadioButton Content="Demand &gt; Capacity (Backlog)" Margin="0,5,0,0" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Backlog}"/>
+                        <RadioButton Content="Opened Customer Orders" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Antecipacao}"/>
+                        <RadioButton Content="Simulation of Capacity Restrictions" Margin="0,5,0,0" GroupName="Scenario" IsChecked="{Binding CenarioSelecionado, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Backlog}"/>
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Header="2. Horizon Planning" Padding="10" Margin="20,0,0,0" FontWeight="SemiBold">

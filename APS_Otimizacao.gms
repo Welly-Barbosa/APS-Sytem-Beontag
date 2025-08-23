@@ -23,7 +23,7 @@ $TITLE Otimizacao de Corte de Bobinas - Beontag (v28.0 - Filtro de Par)
 $onDotL
 
 * --- Opcoes do Solver
-Option optcr  = 0.05;
+*Option optcr  = 0.01;
 *Option reslim = 3600;
 Option solPrint = off;
 Option limRow = 0, limCol = 0;
@@ -66,10 +66,10 @@ p_tempoUsoMaquina(j) = p_tempoSetupBase(j) + p_tempoProcesso(j);
 * --- Parametros de Custo e Qualidade ---
 Scalar s_pesoCustoProducao         'Custo por bobina-mae usada' / 1 /;
 Scalar s_pesoCustoAtraso          'Penalidade ponderada por dia de atraso'/ 10 /;
-Scalar s_pesoCustoFalta        'Custo por unidade de produto faltante (demanda nao atendida)'/ 10000 /;
+Scalar s_pesoCustoFalta        'Custo por unidade de produto faltante (demanda nao atendida)'/ 500000 /;
 Scalar s_pesoCustoRefugo         'Custo de refugo (sobra de largura), para desempate'/ 0.1 /;
 
-Scalar s_minUtilPct_master    'Utilizacao minima para um padrao ser aceito pelo mestre' / 0.90 /;
+Scalar s_minUtilPct_master    'Utilizacao minima para um padrao ser aceito pelo mestre' / 0.70 /;
 
 * --- Parametro para a restricao global de cortes ---
 Scalar s_maxCortesGlobal     'Numero maximo de cortes permitido em um padrao';
@@ -154,7 +154,7 @@ UmaxCuts(p_base,w,c)$(
     p(p_base,w,c) and p_larguraPwC(p_base,w,c) > 0 and
     p_larguraPwC(p_base,w,c) <= s_larguraMae
 ) = floor(s_larguraMae / p_larguraPwC(p_base,w,c));
-Scalar s_minUtilPct 'Target de utilizacao minima de largura por padrao' / 0.90 /;
+Scalar s_minUtilPct 'Target de utilizacao minima de largura por padrao' / 0.75 /;
 
 Variables
     v_valorPadrao;
@@ -272,6 +272,7 @@ WHILE( (s_podeMelhorar = 1) and (s_iter < s_iterMax) and (s_semMelhora < s_semMe
 * ==============================================================================
 if (CorteMestre.modelstat = 1 or CorteMestre.modelstat = 8,
     CorteMestre.reslim=300;
+    CorteMestre.optcr=0.05;
     SOLVE CorteMestre using MIP minimizing zTotal;
 );
 * ------------------------------------------------------------------------------

@@ -31,9 +31,9 @@ public class InMemoryCalendarioRepository : ICalendarioRepository
 
         foreach (var dia in dias24x5)
         {
-            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(6, 0), new TimeOnly(14, 0)));  // Turno 1 (8h)
-            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(14, 0), new TimeOnly(22, 0))); // Turno 2 (8h)
-            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(22, 0), new TimeOnly(23, 59, 59))); // Parte final do Turno 3
+            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(0, 0), new TimeOnly(8, 0)));  // Turno 1 (8h)
+            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(8, 0), new TimeOnly(16, 0))); // Turno 2 (8h)
+            cal24x5.AdicionarTurno(new Turno(dia, new TimeOnly(16, 0), new TimeOnly(23, 59, 59))); // Parte final do Turno 3
             // Para simplificar, estamos considerando 22h de trabalho por dia.
         }
         _calendarios.Add(cal24x5);
